@@ -5,6 +5,7 @@ import preload from './node_types/preload'
 import selector from './node_types/selector'
 import debug from './node_types/debug'
 import virtual from './node_types/virtual'
+import lazy from './node_types/lazy'
 import { reduce } from './utils'
 import { selectIsReady } from './actions-reducer.js'
 
@@ -40,6 +41,10 @@ const visitors = {
             ...value,
             excludeProp: true,
         }
+    },
+    [lazy.TYPE](context, node, state, props, ...args) {
+        const child = node.factory(...args)
+        return next(context, child, state, props)
     },
     [preload.TYPE](context, node, state, props, ...args) {
         const children = node.factory(preload.useProps, ...args)

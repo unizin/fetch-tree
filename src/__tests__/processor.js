@@ -1,6 +1,6 @@
 import test from 'ava'
 import processor from '../processor'
-import { group, selector, depends, loader, preload, virtual } from '../index'
+import { group, selector, depends, loader, preload, virtual, lazy } from '../index'
 
 const state = {
     someCount: 0,
@@ -385,6 +385,43 @@ test(`virtual nodes can compute a value without emitting a prop to the component
         },
     }
     const props = {}
+
+    const actual = processor(tree, state, props)
+
+    t.deepEqual(actual.isReady, expected.isReady)
+    t.deepEqual(actual.actionQueue, expected.actionQueue)
+    t.deepEqual(actual.value, expected.value)
+})
+
+test(`lazy() generates a child node at runtime`, t => {
+    const tree = group({
+        todos: depends(
+            [depends.prop('ids')],
+            lazy(
+                (ids) => group(ids.map(
+                    id => depends([depends.value(id)], todoLoader)
+                ))
+            )
+        ),
+    })
+
+    const expected = {
+        isReady: true,
+        actionQueue: [
+            { id: 'todo-2', action: fetchTodo, args: [2], debug: false },
+            { id: 'todo-1', action: fetchTodo, args: [1], debug: false },
+        ],
+        value: {
+            todos: [
+                // todo 3 was skipped because it isn't ready.
+                { id: 2, message: 'bar', done: true },
+                { id: 1, message: 'foo', done: false },
+            ],
+        },
+    }
+    const props = {
+        ids: [2, 1],
+    }
 
     const actual = processor(tree, state, props)
 

@@ -5,9 +5,11 @@ import depends from './node_types/depends'
 import preload from './node_types/preload'
 import debug from './node_types/debug'
 import virtual from './node_types/virtual'
+import lazy from './node_types/lazy'
+
 import component from './component'
 import reducer from './actions-reducer'
 
-export { group, loader, selector, depends, preload, reducer, debug, virtual }
+export { group, loader, selector, depends, preload, reducer, debug, virtual, lazy }
 
 export default component
