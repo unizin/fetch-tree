@@ -26,7 +26,7 @@ export default function loader(options = {}) {
 
 loader.TYPE = TYPE
 
-register(TYPE, (next, context, node, state, props, ...args) => {
+register(TYPE, (next, context, node, state, ...args) => {
     const id = node.id(...args)
     if (typeof id !== 'string') {
         throw new Error('Loader failed to return an id')

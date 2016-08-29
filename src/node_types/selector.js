@@ -14,7 +14,7 @@ export default function selector(select) {
 }
 selector.TYPE = TYPE
 
-register(TYPE, (next, context, node, state, props, ...args) => {
+register(TYPE, (next, context, node, state, ...args) => {
     return {
         isReady: true,
         value: node.select(state, ...args),

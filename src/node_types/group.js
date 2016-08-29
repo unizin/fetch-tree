@@ -30,7 +30,7 @@ group.debug = function debugGroup(children) {
     return debug(group(children))
 }
 
-register(TYPE, (next, context, node, state, props) => {
+register(TYPE, (next, context, node, state) => {
     const resources = {}
     const { path } = context
 
@@ -42,7 +42,7 @@ register(TYPE, (next, context, node, state, props) => {
                 resources,
                 path: [...path, key],
             }
-            const result = resources[key] = next(childContext, child, state, props)
+            const result = resources[key] = next(childContext, child, state)
             const { isReady, value, excludeProp } = result
 
             if (excludeProp === true || !isReady) {

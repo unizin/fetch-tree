@@ -11,7 +11,7 @@ export default function lazy(factory) {
 lazy.TYPE = TYPE
 
 
-register(TYPE, (next, context, node, state, props, ...args) => {
+register(TYPE, (next, context, node, state, ...args) => {
     const child = node.factory(...args)
-    return next(context, child, state, props)
+    return next(context, child, state)
 })

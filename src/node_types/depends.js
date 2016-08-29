@@ -53,7 +53,7 @@ depends.value = value
 
 depends.TYPE = TYPE
 
-register(TYPE, (next, context, node, state, props) => {
+register(TYPE, (next, context, node, state) => {
     let isReady = true
 
     if (context.debug) {
@@ -70,7 +70,7 @@ register(TYPE, (next, context, node, state, props) => {
         const path = dep.path.split('.')
         let root
         if (dep.type === 'prop') {
-            root = props
+            root = context.props
         } else if (dep.type === 'resource') {
             const key = path.shift()
             const resource = context.resources[key]
@@ -95,5 +95,5 @@ register(TYPE, (next, context, node, state, props) => {
         }
     }
 
-    return next(context, node.child, state, props, ...args)
+    return next(context, node.child, state, ...args)
 })

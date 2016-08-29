@@ -14,8 +14,8 @@ export default function virtual(child) {
 }
 virtual.TYPE = TYPE
 
-register(TYPE, (next, context, node, state, props, ...args) => {
-    const value = next(context, node.child, state, props, ...args)
+register(TYPE, (next, context, node, state, ...args) => {
+    const value = next(context, node.child, state, ...args)
 
     return {
         ...value,
