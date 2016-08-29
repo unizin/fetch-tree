@@ -14,9 +14,9 @@ export default function selector(select) {
 }
 selector.TYPE = TYPE
 
-register(TYPE, (next, processingContext, node, state, ...args) => {
+register(TYPE, (next, processingContext, node, ...args) => {
     return {
         isReady: true,
-        value: node.select(state, ...args),
+        value: node.select(processingContext.state, ...args),
     }
 })

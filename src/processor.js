@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 const visitors = {}
 
-function next(processingContext, node, state, ...args) {
+function next(processingContext, node, ...args) {
     if (!visitors[node.TYPE]) {
         console.log(node)
         throw new Error(`Invalid type: ${String(node.TYPE)}`)
@@ -19,12 +19,12 @@ function next(processingContext, node, state, ...args) {
         if (args.length > 0) {
             console.log('...args: ', ...args)
         }
-        value = visitors[node.TYPE](next, processingContext, node, state, ...args)
+        value = visitors[node.TYPE](next, processingContext, node, ...args)
         console.log('isReady', value.isReady)
         console.log('value', value.value)
         console.groupEnd(groupName)
     } else {
-        value = visitors[node.TYPE](next, processingContext, node, state, ...args)
+        value = visitors[node.TYPE](next, processingContext, node, ...args)
     }
     return value
 }
@@ -32,6 +32,8 @@ function next(processingContext, node, state, ...args) {
 export default function processor(node, state, props) {
     const actionQueue = []
     const processingContext = {
+        props,
+        state,
         debug: false,
         queue(id, action, args) {
             if (this.debug) {
@@ -40,10 +42,9 @@ export default function processor(node, state, props) {
             actionQueue.push({ id, action, args, debug: this.debug })
         },
         path: ['root'],
-        props,
     }
 
-    const value = next(processingContext, node, state)
+    const value = next(processingContext, node)
 
     return {
         ...value,

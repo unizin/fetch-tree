@@ -26,21 +26,21 @@ export default function loader(options = {}) {
 
 loader.TYPE = TYPE
 
-register(TYPE, (next, processingContext, node, state, ...args) => {
+register(TYPE, (next, processingContext, node, ...args) => {
     const id = node.id(...args)
     if (typeof id !== 'string') {
         throw new Error('Loader failed to return an id')
     }
     let value
 
-    const isReady = node.lazy === true || selectIsReady(state, id)
+    const isReady = node.lazy === true || selectIsReady(processingContext.state, id)
 
     // Always queue the action. The component can choose whether or not to
     // call it.
     processingContext.queue(id, node.action, args)
 
     if (isReady) {
-        value = node.selector(state, ...args)
+        value = node.selector(processingContext.state, ...args)
     }
 
     return {

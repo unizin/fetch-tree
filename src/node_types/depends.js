@@ -53,7 +53,7 @@ depends.value = value
 
 depends.TYPE = TYPE
 
-register(TYPE, (next, processingContext, node, state) => {
+register(TYPE, (next, processingContext, node) => {
     let isReady = true
 
     if (processingContext.debug) {
@@ -95,5 +95,5 @@ register(TYPE, (next, processingContext, node, state) => {
         }
     }
 
-    return next(processingContext, node.child, state, ...args)
+    return next(processingContext, node.child, ...args)
 })
