@@ -1,3 +1,4 @@
+import { register } from '../processor'
 const TYPE = 'debug'
 
 export default function debug(child) {
@@ -10,4 +11,19 @@ export default function debug(child) {
         child,
     }
 }
-debug.TYPE = TYPE
+
+/* eslint-disable no-console */
+register(TYPE, (next, context, node, state, props) => {
+    const childContext = {
+        ...context,
+        debug: true,
+    }
+
+    try {
+        console.groupCollapsed('DEBUG')
+        return next(childContext, node.child, state, props)
+    } finally {
+        console.groupEnd('DEBUG')
+    }
+}
+)

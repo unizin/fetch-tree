@@ -10,6 +10,9 @@ import lazy from './node_types/lazy'
 import component from './component'
 import reducer from './actions-reducer'
 
+import { register as registerNodeType } from './processor.js'
+
 export { group, loader, selector, depends, preload, reducer, debug, virtual, lazy }
 
+export { registerNodeType }
 export default component

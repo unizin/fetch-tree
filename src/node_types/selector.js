@@ -1,3 +1,4 @@
+import { register } from '../processor.js'
 
 const TYPE = 'selector'
 
@@ -12,3 +13,10 @@ export default function selector(select) {
     }
 }
 selector.TYPE = TYPE
+
+register(TYPE, (next, context, node, state, props, ...args) => {
+    return {
+        isReady: true,
+        value: node.select(state, ...args),
+    }
+})

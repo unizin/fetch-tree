@@ -1,4 +1,5 @@
-
+import { register } from '../processor'
+import group from './group'
 
 const TYPE = 'preload'
 
@@ -23,3 +24,30 @@ preload.useProps = (function useProps() {
     useProps.TYPE = TYPE
     return useProps
 }())
+
+register(TYPE, (next, context, node, state, props, ...args) => {
+    const children = node.factory(preload.useProps, ...args)
+
+    if (!Array.isArray(children)) {
+        throw new Error('Preload must return an array of nodes to process')
+    }
+
+    if (Array.isArray(children) && children.length === 0) {
+        return {
+            isReady: true,
+            excludeProp: true,
+        }
+    }
+
+    const child = group(children)
+
+    const { isReady } = next(context, child, state, props)
+    return {
+        excludeProp: true,
+        isReady,
+    }
+})
+
+register(preload.useProps.TYPE, (next, context, node, state, props, ...args) => {
+    return next(context, node.child, state, node.props, ...args)
+})

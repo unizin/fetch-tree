@@ -1,6 +1,7 @@
+import { register } from '../processor.js'
 import debug from './debug'
 import normalize from './normalize.js'
-import { map } from '../utils'
+import { map, reduce } from '../utils'
 
 const TYPE = 'group'
 
@@ -28,3 +29,40 @@ group.TYPE = TYPE
 group.debug = function debugGroup(children) {
     return debug(group(children))
 }
+
+register(TYPE, (next, context, node, state, props) => {
+    const resources = {}
+    const { path } = context
+
+    const results = reduce(
+        node.children,
+        (x, child, key) => {
+            const childContext = {
+                ...context,
+                resources,
+                path: [...path, key],
+            }
+            const result = resources[key] = next(childContext, child, state, props)
+            const { isReady, value, excludeProp } = result
+
+            if (excludeProp === true || !isReady) {
+                return {
+                    ...x,
+                    isReady: x.isReady && isReady,
+                }
+            }
+
+            const nextValue = Array.isArray(node.children) ?
+            [...x.value, value] :
+            { ...x.value, [key]: value }
+
+            return {
+                isReady: x.isReady && isReady,
+                value: nextValue,
+            }
+        },
+        { isReady: true, value: Array.isArray(node.children) ? [] : {} }
+    )
+
+    return results
+})

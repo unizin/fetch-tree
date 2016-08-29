@@ -1,3 +1,4 @@
+import { register } from '../processor'
 import normalize from './normalize'
 
 const TYPE = 'depends'
@@ -48,8 +49,51 @@ export default function depends(dependencies = [], child) {
 
 depends.prop = prop
 depends.resource = resource
-
-// I don't know if `value` is useful outside of tests
 depends.value = value
 
 depends.TYPE = TYPE
+
+register(TYPE, (next, context, node, state, props) => {
+    let isReady = true
+
+    if (context.debug) {
+        console.log('node.dependencies: ', ...node.dependencies)
+    }
+
+    const args = node.dependencies.map(dep => {
+        if (isReady === false) return null
+
+        if (dep.type === 'value') {
+            return dep.value
+        }
+
+        const path = dep.path.split('.')
+        let root
+        if (dep.type === 'prop') {
+            root = props
+        } else if (dep.type === 'resource') {
+            const key = path.shift()
+            const resource = context.resources[key]
+
+            if (resource.isReady) {
+                root = resource.value
+            } else {
+                isReady = false
+                return null
+            }
+        }
+
+        return path.reduce(
+                (value, next) => (value != null ? value[next] : null),
+                root
+            )
+    })
+
+    if (!isReady) {
+        return {
+            isReady,
+        }
+    }
+
+    return next(context, node.child, state, props, ...args)
+})

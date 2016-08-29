@@ -1,3 +1,4 @@
+import { register } from '../processor'
 import normalize from './normalize.js'
 const TYPE = 'virtual'
 
@@ -12,3 +13,12 @@ export default function virtual(child) {
     }
 }
 virtual.TYPE = TYPE
+
+register(TYPE, (next, context, node, state, props, ...args) => {
+    const value = next(context, node.child, state, props, ...args)
+
+    return {
+        ...value,
+        excludeProp: true,
+    }
+})
