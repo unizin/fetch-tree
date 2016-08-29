@@ -26,7 +26,7 @@ export default function loader(options = {}) {
 
 loader.TYPE = TYPE
 
-register(TYPE, (next, context, node, state, ...args) => {
+register(TYPE, (next, processingContext, node, state, ...args) => {
     const id = node.id(...args)
     if (typeof id !== 'string') {
         throw new Error('Loader failed to return an id')
@@ -37,7 +37,7 @@ register(TYPE, (next, context, node, state, ...args) => {
 
     // Always queue the action. The component can choose whether or not to
     // call it.
-    context.queue(id, node.action, args)
+    processingContext.queue(id, node.action, args)
 
     if (isReady) {
         value = node.selector(state, ...args)

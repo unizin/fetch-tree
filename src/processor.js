@@ -1,37 +1,37 @@
 /* eslint-disable no-console */
 const visitors = {}
 
-function next(context, node, state, ...args) {
+function next(processingContext, node, state, ...args) {
     if (!visitors[node.TYPE]) {
         console.log(node)
         throw new Error(`Invalid type: ${String(node.TYPE)}`)
     }
 
-    const { debug } = context
+    const { debug } = processingContext
 
     let value
 
     if (debug) {
-        const groupName = `${node.TYPE}: ${context.path.join('.')}`
+        const groupName = `${node.TYPE}: ${processingContext.path.join('.')}`
 
         console.groupCollapsed(groupName)
         console.log('node: ', node)
         if (args.length > 0) {
             console.log('...args: ', ...args)
         }
-        value = visitors[node.TYPE](next, context, node, state, ...args)
+        value = visitors[node.TYPE](next, processingContext, node, state, ...args)
         console.log('isReady', value.isReady)
         console.log('value', value.value)
         console.groupEnd(groupName)
     } else {
-        value = visitors[node.TYPE](next, context, node, state, ...args)
+        value = visitors[node.TYPE](next, processingContext, node, state, ...args)
     }
     return value
 }
 
 export default function processor(node, state, props) {
     const actionQueue = []
-    const context = {
+    const processingContext = {
         debug: false,
         queue(id, action, args) {
             if (this.debug) {
@@ -43,7 +43,7 @@ export default function processor(node, state, props) {
         props,
     }
 
-    const value = next(context, node, state)
+    const value = next(processingContext, node, state)
 
     return {
         ...value,

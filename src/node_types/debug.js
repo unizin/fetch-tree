@@ -13,15 +13,15 @@ export default function debug(child) {
 }
 
 /* eslint-disable no-console */
-register(TYPE, (next, context, node, state) => {
-    const childContext = {
-        ...context,
+register(TYPE, (next, processingContext, node, state) => {
+    const childProcessingContext = {
+        ...processingContext,
         debug: true,
     }
 
     try {
         console.groupCollapsed('DEBUG')
-        return next(childContext, node.child, state)
+        return next(childProcessingContext, node.child, state)
     } finally {
         console.groupEnd('DEBUG')
     }

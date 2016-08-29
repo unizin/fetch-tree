@@ -25,7 +25,7 @@ preload.useProps = (function useProps() {
     return useProps
 }())
 
-register(TYPE, (next, context, node, state, ...args) => {
+register(TYPE, (next, processingContext, node, state, ...args) => {
     const children = node.factory(preload.useProps, ...args)
 
     if (!Array.isArray(children)) {
@@ -41,17 +41,17 @@ register(TYPE, (next, context, node, state, ...args) => {
 
     const child = group(children)
 
-    const { isReady } = next(context, child, state)
+    const { isReady } = next(processingContext, child, state)
     return {
         excludeProp: true,
         isReady,
     }
 })
 
-register(preload.useProps.TYPE, (next, context, node, state, ...args) => {
-    const childContext = {
-        ...context,
+register(preload.useProps.TYPE, (next, processingContext, node, state, ...args) => {
+    const childProcessingContext = {
+        ...processingContext,
         props: node.props,
     }
-    return next(childContext, node.child, state, ...args)
+    return next(childProcessingContext, node.child, state, ...args)
 })

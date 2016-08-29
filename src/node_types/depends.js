@@ -53,10 +53,10 @@ depends.value = value
 
 depends.TYPE = TYPE
 
-register(TYPE, (next, context, node, state) => {
+register(TYPE, (next, processingContext, node, state) => {
     let isReady = true
 
-    if (context.debug) {
+    if (processingContext.debug) {
         console.log('node.dependencies: ', ...node.dependencies)
     }
 
@@ -70,10 +70,10 @@ register(TYPE, (next, context, node, state) => {
         const path = dep.path.split('.')
         let root
         if (dep.type === 'prop') {
-            root = context.props
+            root = processingContext.props
         } else if (dep.type === 'resource') {
             const key = path.shift()
-            const resource = context.resources[key]
+            const resource = processingContext.resources[key]
 
             if (resource.isReady) {
                 root = resource.value
@@ -95,5 +95,5 @@ register(TYPE, (next, context, node, state) => {
         }
     }
 
-    return next(context, node.child, state, ...args)
+    return next(processingContext, node.child, state, ...args)
 })

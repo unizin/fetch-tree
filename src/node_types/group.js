@@ -30,19 +30,19 @@ group.debug = function debugGroup(children) {
     return debug(group(children))
 }
 
-register(TYPE, (next, context, node, state) => {
+register(TYPE, (next, processingContext, node, state) => {
     const resources = {}
-    const { path } = context
+    const { path } = processingContext
 
     const results = reduce(
         node.children,
         (x, child, key) => {
-            const childContext = {
-                ...context,
+            const childProcessingContext = {
+                ...processingContext,
                 resources,
                 path: [...path, key],
             }
-            const result = resources[key] = next(childContext, child, state)
+            const result = resources[key] = next(childProcessingContext, child, state)
             const { isReady, value, excludeProp } = result
 
             if (excludeProp === true || !isReady) {
