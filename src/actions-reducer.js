@@ -5,7 +5,7 @@ export const setActionStatusDone = (id) => ({
     payload: id,
 })
 
-export const selectIsReady = (state, id) => state.fetchTree && state.fetchTree[id] != null
+export const selectIsReady = (state, id) => Boolean(state.fetchTree && state.fetchTree[id] != null)
 
 export default function reducer(state = {}, action) {
     if (action.type !== ACTION_DONE) return state

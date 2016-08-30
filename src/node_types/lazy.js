@@ -1,17 +1,16 @@
 import { register } from '../processor'
 const TYPE = 'lazy'
 
-export default function lazy(factory) {
-    return {
-        TYPE,
-        factory,
-    }
-}
-
-lazy.TYPE = TYPE
-
-
-register(TYPE, (next, processingContext, node, ...args) => {
-    const child = node.factory(...args)
-    return next(processingContext, child)
+export default register({
+    TYPE,
+    factory(factory) {
+        return {
+            TYPE,
+            factory,
+        }
+    },
+    nodeProcessor(next, processingContext, node, ...args) {
+        const child = node.factory(...args)
+        return next(processingContext, child)
+    },
 })

@@ -1,6 +1,5 @@
 import test from 'ava'
 import depends from '../depends'
-import loader from '../loader'
 
 test(`depends with missing first parameter`, t => {
     const actual = () => depends()
@@ -24,25 +23,40 @@ test(`depends normalizes the child`, t => {
     t.notThrows(actual, /child.*loader/i)
 })
 
-test(`depends return type`, t => {
-    const child = loader({
-        id: () => 'foo',
-        action: () => null,
-        selector: () => 'child',
-    })
-
-    const expected = {
-        TYPE: depends.TYPE,
-        dependencies: [
-            { type: 'resource', path: 'foo' },
-        ],
-        child,
+function dependsMacro(t, dependencies, expected) {
+    const context = {
+        props: {
+            foo: 'fooProp',
+        },
+        resources: {
+            foo: 'fooResource',
+            bar: 'barResource',
+        },
     }
 
-    const actual = depends(
-        ['foo'],
-        child
+    const node = depends(
+        dependencies,
+        { TYPE: 'example' }
     )
 
-    t.deepEqual(actual, expected)
-})
+    const next = (context, node, ...actual) => {
+        t.deepEqual(actual, expected)
+    }
+
+    depends.nodeProcessor(next, context, node)
+}
+
+test(`depends with depends.value`, dependsMacro,
+    [depends.value('someValue')],
+    ['someValue']
+)
+
+test(`depends with depends.value`, dependsMacro,
+    ['foo', depends.resource('bar')],
+    ['fooResource', 'barResource']
+)
+
+test(`depends with depends.value`, dependsMacro,
+    [depends.prop('foo')],
+    ['fooProp']
+)

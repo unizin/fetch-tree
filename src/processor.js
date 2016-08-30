@@ -52,9 +52,19 @@ export default function processor(node, state, props) {
     }
 }
 
-export const register = (type, implemenation) => {
-    if (visitors[type]) {
-        throw new Error(`visitor ${type} is already registered`)
+export const register = ({ TYPE, factory, nodeProcessor }) => {
+    if (!TYPE) { throw new Error('missing TYPE') }
+    if (!factory) { throw new Error('missing factory') }
+    if (!nodeProcessor) { throw new Error('missing nodeProcessor') }
+    if (visitors[TYPE]) {
+        throw new Error(`visitor ${TYPE} is already registered`)
     }
-    visitors[type] = implemenation
+    visitors[TYPE] = nodeProcessor
+
+    // It's useful to attach the nodeProcessor and type for testing purposes.
+    factory.nodeProcessor = nodeProcessor
+    factory.TYPE = TYPE
+
+    // the factory is the only piece users interact with, so return it directly
+    return factory
 }

@@ -3,55 +3,59 @@ import group from './group'
 
 const TYPE = 'preload'
 
-export default function preload(factory) {
-    return {
-        TYPE,
-        factory,
-    }
-}
-
-preload.TYPE = TYPE
-
-preload.useProps = (function useProps() {
+const useProps = (function useProps() {
     const TYPE = 'useProps'
-    function useProps(props, child) {
-        return {
-            TYPE,
-            props,
-            child,
-        }
-    }
-    useProps.TYPE = TYPE
-    return useProps
+
+    return register({
+        TYPE,
+        factory(props, child) {
+            return {
+                TYPE,
+                props,
+                child,
+            }
+        },
+        nodeProcessor(next, processingContext, node, ...args) {
+            const childProcessingContext = {
+                ...processingContext,
+                props: node.props,
+            }
+            return next(childProcessingContext, node.child, ...args)
+        },
+    })
 }())
 
-register(TYPE, (next, processingContext, node, ...args) => {
-    const children = node.factory(preload.useProps, ...args)
-
-    if (!Array.isArray(children)) {
-        throw new Error('Preload must return an array of nodes to process')
-    }
-
-    if (Array.isArray(children) && children.length === 0) {
+const preload = register({
+    TYPE,
+    factory(factory) {
         return {
-            isReady: true,
-            excludeProp: true,
+            TYPE,
+            factory,
         }
-    }
+    },
+    nodeProcessor(next, processingContext, node, ...args) {
+        const children = node.factory(useProps, ...args)
 
-    const child = group(children)
+        if (!Array.isArray(children)) {
+            throw new Error('Preload must return an array of nodes to process')
+        }
 
-    const { isReady } = next(processingContext, child)
-    return {
-        excludeProp: true,
-        isReady,
-    }
+        if (Array.isArray(children) && children.length === 0) {
+            return {
+                isReady: true,
+                excludeProp: true,
+            }
+        }
+
+        const child = group(children)
+
+        const { isReady } = next(processingContext, child)
+        return {
+            excludeProp: true,
+            isReady,
+        }
+    },
 })
 
-register(preload.useProps.TYPE, (next, processingContext, node, ...args) => {
-    const childProcessingContext = {
-        ...processingContext,
-        props: node.props,
-    }
-    return next(childProcessingContext, node.child, ...args)
-})
+
+export default preload
