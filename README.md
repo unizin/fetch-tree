@@ -4,7 +4,215 @@ The goal is to allow you to define data requirements with your components. Those
 data requirements can then be composed so that a top level component can load
 all of the required data for it and its children.
 
+You define data requirements using a set of functions that generate nodes. Nodes
+are plain objects with as few functions as I could get away with. If you log the
+tree you built nodes will always have a `TYPE` property and many have a
+`children` property.
+
 This project was inspired by [redux-loader][redux-loader].
+
+## Getting Started
+
+FetchTree requires that you are using `redux`, `react-redux`, and `redux-thunk`.
+
+```
+npm install --save fetch-tree
+```
+
+Mix the reducer into your root reducer under the key `fetchTree`
+
+```
+import { reducer as fetchTree }  from 'fetch-tree'
+
+export default combineReducers({
+    fetchTree,
+})
+```
+
+The default export is a function for generating a higher order component.
+
+```js
+import fetchTree from 'fetch-tree'
+
+export const resources = /* */
+
+export default fetchTree({
+    resources,
+    component: MyComponent,
+    // busy is optional. If you don't provide a component it will just render
+    // `null` in place of your component while it loads.
+    busy: (props) => (<div>Loading...</div>),
+})
+```
+
+## Resource nodes
+
+When nodes get processed they typically return a `value` and `isReady`.
+
+### group({ [propName]: node, [propName]: node })
+
+`group` converts each `node` to a value. The most common use for this is as
+`resources` for a component. Every key that where the node is ready becomes a
+prop that will be passed down to your component.
+
+```js
+const resources = group({
+    someProp: /* node definition */
+})
+```
+
+It's best to define groups with an object literal, because it's going to
+process each node in order.
+
+As `group` processes, each node becomes known as a `resource` that you may
+depend on for other nodes.
+
+### group([ node, node, node ])
+
+When `group` is given an array, it will return an array with the values of each
+node.
+
+### selector(selectorFunction(state, ...params))
+
+Selectors are the easiest type to use. Other nodes that accept a child node will
+allow you to pass a selector function and it will just convert it.
+
+`...params` are optional and will be provided by the `depends()` node.
+
+```js
+const someSelector = (state) => state.thing
+const resources = group({
+    someProp: selector(someSelector)
+
+    // automatically converted by group():
+    otherProp: someSelector
+})
+```
+
+### loader({ id, action, selector, lazy = false })
+
+`fetch-tree` needs an ID to keep track of pending and completed requests. We do
+that with an `id(...params)` function. If you have a resource that loads
+individual todos by ID you might use
+
+```js
+id: (todoId) => `todo-${todoId}`
+```
+
+`action` must be a `thunk` style action that returns a promise that resolves
+when the data has been written to the store.
+
+`selector` must select whatever data `action` wrote to the store.
+
+```js
+loader({
+    id: (...params) => `resource-type-`
+    action: (...params) => (dispatch) => return new Promise((resolve, reject) => {
+
+    })
+    selector: (state, ...params) =>
+})
+```
+
+### depends(dependencies, child)
+
+This node populates `...params` for its child node. `dependencies` must be an
+array describing where to get the values to populate `...params`. It has a set
+of helper functions for defining the dependencies.
+
+```js
+const resources = group({
+    resourceA: selectA,
+    resourceB: selectB,
+
+    depends(
+        [
+            depends.resource('resourceA'),
+            // Strings are automatically converted to depends.resource(resourceName)
+            'resourceB',
+            depends.prop('propA')
+            depends.value('someValue')
+        ],
+        selector((state, resourceA, resourceB, propA, value) => {
+        })
+    )
+})
+```
+
+### virtual(child)
+
+`virtual` allows you to define resources in a `group` that don't get passed
+along as props in your component.
+
+```js
+const resources = group({
+    notAProp: virtual(selector(someSelector)),
+
+    someProp: depends(
+        ['notAProp'],
+        selector((state, notAPropValue) => {
+
+        })
+    )
+})
+```
+
+### debug(child)
+
+You can wrap nodes in `debug` to log that section of the tree, and to log what's
+happening as it gets processed.
+
+`group.debug(children)` is a shortcut for `debug(group(children))`. This allows
+you to quickly add and remove debugging without having to deal with parens that
+might be many lines away.
+
+### lazy(factory)
+
+`lazy` allows you to generate nodes at runtime so that they can depend on other
+resources. `factory` accepts `...params`, much like `selector` and `loader`.
+
+```js
+const todoLoader = loader(/* assume it needs an ID */)
+
+const resources = group({
+    allTodos: depends(
+        [depends.prop('todoIds')],
+        lazy((ids) => group(ids.map(
+            // yup, this is as awkward as it looks :(
+            id => depends([depends.value(id)], todoLoader)
+        )))
+    )
+
+})
+```
+
+### preload(factory)
+
+`preload` is a special `virtual()` version of `lazy()`.
+
+```js
+const todoResources = group({
+    /* Everything for displaying an individual Todo */
+    todo: depends(
+        [depends.prop('id')],
+        todoLoader
+    )
+})
+
+const todoListResources = group({
+    todos: depends(
+        [depends.prop('ids')]
+        preload(
+            // useProps is a special node that is only available here. it is the
+            // only mechanism for replacing the `prop` seen by child nodes.
+            (useProps, ids) => ids.map(
+                id => useProps({ id }, todoResources)
+            )
+        )
+    )
+})
+```
+
 
 ## Open Source
 
