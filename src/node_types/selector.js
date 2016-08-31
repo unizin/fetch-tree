@@ -1,14 +1,23 @@
+import { register } from '../processor.js'
 
 const TYPE = 'selector'
 
-export default function selector(select) {
-    if (typeof select !== 'function') {
-        throw new Error('Missing selector')
-    }
+export default register({
+    TYPE,
+    factory(select) {
+        if (typeof select !== 'function') {
+            throw new Error('Missing selector')
+        }
 
-    return {
-        TYPE,
-        select,
-    }
-}
-selector.TYPE = TYPE
+        return {
+            TYPE,
+            select,
+        }
+    },
+    nodeProcessor(next, scope, node, ...args) {
+        return {
+            isReady: true,
+            value: node.select(scope.state, ...args),
+        }
+    },
+})

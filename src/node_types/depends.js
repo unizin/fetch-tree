@@ -1,3 +1,4 @@
+import { register } from '../processor'
 import normalize from './normalize'
 
 const TYPE = 'depends'
@@ -24,32 +25,77 @@ function normalizeDependency(dep) {
     return dep
 }
 
-export default function depends(dependencies = [], child) {
-    if (!Array.isArray(dependencies)) {
-        throw new Error(`dependencies must be an array`)
-    }
-    if (dependencies.length === 0) {
-        throw new Error('Missing dependencies')
-    }
-    if (child == null) {
-        throw new Error('Missing child')
-    }
-    child = normalize(child)
-    if (!child.TYPE) {
-        throw new Error('Invalid child type')
-    }
+const depends = register({
+    TYPE,
+    factory(dependencies = [], child) {
+        if (!Array.isArray(dependencies)) {
+            throw new Error(`dependencies must be an array`)
+        }
+        if (dependencies.length === 0) {
+            throw new Error('Missing dependencies')
+        }
+        if (child == null) {
+            throw new Error('Missing child')
+        }
+        child = normalize(child)
+        if (!child.TYPE) {
+            throw new Error('Invalid child type')
+        }
 
-    return {
-        TYPE,
-        dependencies: dependencies.map(normalizeDependency),
-        child,
-    }
-}
+        return {
+            TYPE,
+            dependencies: dependencies.map(normalizeDependency),
+            child,
+        }
+    },
+    nodeProcessor(next, scope, node) {
+        let isReady = true
+
+        if (scope.debug) {
+            console.log('node.dependencies: ', ...node.dependencies)
+        }
+
+        const args = node.dependencies.map(dep => {
+            if (isReady === false) return null
+
+            if (dep.type === 'value') {
+                return dep.value
+            }
+
+            const path = dep.path.split('.')
+            let root
+            if (dep.type === 'prop') {
+                root = scope.props
+            } else if (dep.type === 'resource') {
+                const key = path.shift()
+                const resource = scope.resources[key]
+
+                if (resource.isReady) {
+                    root = resource.value
+                } else {
+                    isReady = false
+                    return null
+                }
+            }
+
+            return path.reduce(
+                (value, next) => (value != null ? value[next] : null),
+                root
+            )
+        })
+
+        if (!isReady) {
+            return {
+                isReady,
+            }
+        }
+
+        return next(scope, node.child, ...args)
+    },
+})
 
 depends.prop = prop
 depends.resource = resource
-
-// I don't know if `value` is useful outside of tests
 depends.value = value
 
-depends.TYPE = TYPE
+export default depends

@@ -1,214 +1,39 @@
-import depends from './node_types/depends'
-import group from './node_types/group'
-import loader from './node_types/loader'
-import preload from './node_types/preload'
-import selector from './node_types/selector'
-import debug from './node_types/debug'
-import virtual from './node_types/virtual'
-import lazy from './node_types/lazy'
-import { reduce } from './utils'
-import { selectIsReady } from './actions-reducer.js'
-
 /* eslint-disable no-console */
-/* eslint-disable no-use-before-define */
-const visitors = {
-    [loader.TYPE](context, node, state, props, ...args) {
-        const id = node.id(...args)
-        if (typeof id !== 'string') {
-            throw new Error('Loader failed to return an id')
-        }
-        let value
+const visitors = {}
 
-        const isReady = node.lazy === true || selectIsReady(state, id)
-
-        // Always queue the action. The component can choose whether or not to
-        // call it.
-        context.queue(id, node.action, args)
-
-        if (isReady) {
-            value = node.selector(state, ...args)
-        }
-
-        return {
-            isReady,
-            value,
-        }
-    },
-    [virtual.TYPE](context, node, state, props, ...args) {
-        const value = next(context, node.child, state, props, ...args)
-
-        return {
-            ...value,
-            excludeProp: true,
-        }
-    },
-    [lazy.TYPE](context, node, state, props, ...args) {
-        const child = node.factory(...args)
-        return next(context, child, state, props)
-    },
-    [preload.TYPE](context, node, state, props, ...args) {
-        const children = node.factory(preload.useProps, ...args)
-
-        if (!Array.isArray(children)) {
-            throw new Error('Preload must return an array of nodes to process')
-        }
-
-        if (Array.isArray(children) && children.length === 0) {
-            return {
-                isReady: true,
-                excludeProp: true,
-            }
-        }
-
-        const child = group(children)
-
-        const { isReady } = next(context, child, state, props)
-        return {
-            excludeProp: true,
-            isReady,
-        }
-    },
-    [preload.useProps.TYPE](context, node, state, props, ...args) {
-        return next(context, node.child, state, node.props, ...args)
-    },
-    [depends.TYPE](context, node, state, props) {
-        let isReady = true
-
-        if (context.debug) {
-            console.log('node.dependencies: ', ...node.dependencies)
-        }
-
-        const args = node.dependencies.map(dep => {
-            if (isReady === false) return null
-
-            if (dep.type === 'value') {
-                return dep.value
-            }
-
-            const path = dep.path.split('.')
-            let root
-            if (dep.type === 'prop') {
-                root = props
-            } else if (dep.type === 'resource') {
-                const key = path.shift()
-                const resource = context.resources[key]
-
-                if (resource.isReady) {
-                    root = resource.value
-                } else {
-                    isReady = false
-                    return null
-                }
-            }
-
-            return path.reduce(
-                (value, next) => (value != null ? value[next] : null),
-                root
-            )
-        })
-
-        if (!isReady) {
-            return {
-                isReady,
-            }
-        }
-
-        return next(context, node.child, state, props, ...args)
-    },
-    [selector.TYPE](context, node, state, props, ...args) {
-        return {
-            isReady: true,
-            value: node.select(state, ...args),
-        }
-    },
-    [group.TYPE](context, node, state, props) {
-        const resources = {}
-        const { path } = context
-
-        const results = reduce(
-            node.children,
-            (x, child, key) => {
-                const childContext = {
-                    ...context,
-                    resources,
-                    path: [...path, key],
-                }
-                const result = resources[key] = next(childContext, child, state, props)
-                const { isReady, value, excludeProp } = result
-
-                if (excludeProp === true || !isReady) {
-                    return {
-                        ...x,
-                        isReady: x.isReady && isReady,
-                    }
-                }
-
-                const nextValue = Array.isArray(node.children) ?
-                    [...x.value, value] :
-                    { ...x.value, [key]: value }
-
-                return {
-                    isReady: x.isReady && isReady,
-                    value: nextValue,
-                }
-            },
-            { isReady: true, value: Array.isArray(node.children) ? [] : {} }
-        )
-
-        return results
-    },
-    [debug.TYPE](context, node, state, props) {
-        const childContext = {
-            ...context,
-            debug: true,
-        }
-
-        try {
-            console.groupCollapsed('DEBUG')
-            return next(childContext, node.child, state, props)
-        } finally {
-            console.groupEnd('DEBUG')
-        }
-    },
-}
-
-function next(context, node, state, props, ...args) {
+function next(processingContext, node, ...args) {
     if (!visitors[node.TYPE]) {
         console.log(node)
         throw new Error(`Invalid type: ${String(node.TYPE)}`)
     }
 
-    const { debug } = context
+    const { debug } = processingContext
 
     let value
 
     if (debug) {
-        const groupName = `${node.TYPE}: ${context.path.join('.')}`
+        const groupName = `${node.TYPE}: ${processingContext.path.join('.')}`
 
         console.groupCollapsed(groupName)
         console.log('node: ', node)
         if (args.length > 0) {
             console.log('...args: ', ...args)
         }
-        try {
-            value = visitors[node.TYPE](context, node, state, props, ...args)
-        } catch (e) {
-            console.error(e)
-            throw e
-        } finally {
-            console.log('isReady', value.isReady)
-            console.log('value', value.value)
-            console.groupEnd(groupName)
-        }
+        value = visitors[node.TYPE](next, processingContext, node, ...args)
+        console.log('isReady', value.isReady)
+        console.log('value', value.value)
+        console.groupEnd(groupName)
     } else {
-        value = visitors[node.TYPE](context, node, state, props, ...args)
+        value = visitors[node.TYPE](next, processingContext, node, ...args)
     }
     return value
 }
 
 export default function processor(node, state, props) {
     const actionQueue = []
-    const context = {
+    const processingContext = {
+        props,
+        state,
         debug: false,
         queue(id, action, args) {
             if (this.debug) {
@@ -219,10 +44,27 @@ export default function processor(node, state, props) {
         path: ['root'],
     }
 
-    const value = next(context, node, state, props)
+    const value = next(processingContext, node)
 
     return {
         ...value,
         actionQueue,
     }
+}
+
+export const register = ({ TYPE, factory, nodeProcessor }) => {
+    if (!TYPE) { throw new Error('missing TYPE') }
+    if (!factory) { throw new Error('missing factory') }
+    if (!nodeProcessor) { throw new Error('missing nodeProcessor') }
+    if (visitors[TYPE]) {
+        throw new Error(`visitor ${TYPE} is already registered`)
+    }
+    visitors[TYPE] = nodeProcessor
+
+    // It's useful to attach the nodeProcessor and type for testing purposes.
+    factory.nodeProcessor = nodeProcessor
+    factory.TYPE = TYPE
+
+    // the factory is the only piece users interact with, so return it directly
+    return factory
 }
