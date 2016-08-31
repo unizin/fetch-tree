@@ -14,8 +14,8 @@ export default register({
             child: normalize(child),
         }
     },
-    nodeProcessor(next, processingContext, node, ...args) {
-        const value = next(processingContext, node.child, ...args)
+    nodeProcessor(next, scope, node, ...args) {
+        const value = next(scope, node.child, ...args)
 
         return {
             ...value,

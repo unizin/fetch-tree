@@ -61,14 +61,14 @@ function processorMacro(t, state, expected) {
     const node = loader(nodeDefinition)
     const next = () => undefined
 
-    const processorContext = {
+    const scope = {
         state,
         queue: td.function('.queue'),
     }
 
-    const actual = loader.nodeProcessor(next, processorContext, node, todoId)
+    const actual = loader.nodeProcessor(next, scope, node, todoId)
 
-    td.verify(processorContext.queue('key-1', nodeDefinition.action, [todoId]))
+    td.verify(scope.queue('key-1', nodeDefinition.action, [todoId]))
     t.deepEqual(actual, expected)
 }
 

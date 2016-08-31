@@ -25,21 +25,21 @@ export default register({
             lazy,
         }
     },
-    nodeProcessor(next, processingContext, node, ...args) {
+    nodeProcessor(next, scope, node, ...args) {
         const id = node.id(...args)
         if (typeof id !== 'string') {
             throw new Error('Loader failed to return an id')
         }
         let value
 
-        const isReady = node.lazy === true || selectIsReady(processingContext.state, id)
+        const isReady = node.lazy === true || selectIsReady(scope.state, id)
 
         // Always queue the action. The component can choose whether or not to
         // call it.
-        processingContext.queue(id, node.action, args)
+        scope.queue(id, node.action, args)
 
         if (isReady) {
-            value = node.selector(processingContext.state, ...args)
+            value = node.selector(scope.state, ...args)
         }
 
         return {

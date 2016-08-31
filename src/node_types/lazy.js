@@ -9,8 +9,8 @@ export default register({
             factory,
         }
     },
-    nodeProcessor(next, processingContext, node, ...args) {
+    nodeProcessor(next, scope, node, ...args) {
         const child = node.factory(...args)
-        return next(processingContext, child)
+        return next(scope, child)
     },
 })

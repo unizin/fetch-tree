@@ -14,10 +14,10 @@ export default register({
             select,
         }
     },
-    nodeProcessor(next, processingContext, node, ...args) {
+    nodeProcessor(next, scope, node, ...args) {
         return {
             isReady: true,
-            value: node.select(processingContext.state, ...args),
+            value: node.select(scope.state, ...args),
         }
     },
 })

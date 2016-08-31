@@ -15,12 +15,12 @@ const useProps = (function useProps() {
                 child,
             }
         },
-        nodeProcessor(next, processingContext, node, ...args) {
-            const childProcessingContext = {
-                ...processingContext,
+        nodeProcessor(next, scope, node, ...args) {
+            const childScope = {
+                ...scope,
                 props: node.props,
             }
-            return next(childProcessingContext, node.child, ...args)
+            return next(childScope, node.child, ...args)
         },
     })
 }())
@@ -33,7 +33,7 @@ const preload = register({
             factory,
         }
     },
-    nodeProcessor(next, processingContext, node, ...args) {
+    nodeProcessor(next, scope, node, ...args) {
         const children = node.factory(useProps, ...args)
 
         if (!Array.isArray(children)) {
@@ -49,7 +49,7 @@ const preload = register({
 
         const child = group(children)
 
-        const { isReady } = next(processingContext, child)
+        const { isReady } = next(scope, child)
         return {
             excludeProp: true,
             isReady,

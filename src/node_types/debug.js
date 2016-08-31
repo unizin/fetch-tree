@@ -27,15 +27,15 @@ export default register({
             child,
         }
     },
-    nodeProcessor(next, processingContext, node) {
-        const childProcessingContext = {
-            ...processingContext,
+    nodeProcessor(next, scope, node) {
+        const childScope = {
+            ...scope,
             debug: true,
         }
 
         try {
             groupCollapsed('DEBUG')
-            return next(childProcessingContext, node.child)
+            return next(childScope, node.child)
         } finally {
             groupEnd('DEBUG')
         }

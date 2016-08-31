@@ -26,19 +26,19 @@ const group = register({
             children: map(children, normalize),
         }
     },
-    nodeProcessor(next, processingContext, node) {
+    nodeProcessor(next, scope, node) {
         const resources = {}
-        const { path } = processingContext
+        const { path } = scope
 
         const results = reduce(
             node.children,
             (x, child, key) => {
-                const childProcessingContext = {
-                    ...processingContext,
+                const childScope = {
+                    ...scope,
                     resources,
                     path: [...path, key],
                 }
-                const result = resources[key] = next(childProcessingContext, child)
+                const result = resources[key] = next(childScope, child)
                 const { isReady, value, excludeProp } = result
 
                 if (excludeProp === true || !isReady) {

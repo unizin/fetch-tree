@@ -48,10 +48,10 @@ const depends = register({
             child,
         }
     },
-    nodeProcessor(next, processingContext, node) {
+    nodeProcessor(next, scope, node) {
         let isReady = true
 
-        if (processingContext.debug) {
+        if (scope.debug) {
             console.log('node.dependencies: ', ...node.dependencies)
         }
 
@@ -65,10 +65,10 @@ const depends = register({
             const path = dep.path.split('.')
             let root
             if (dep.type === 'prop') {
-                root = processingContext.props
+                root = scope.props
             } else if (dep.type === 'resource') {
                 const key = path.shift()
-                const resource = processingContext.resources[key]
+                const resource = scope.resources[key]
 
                 if (resource.isReady) {
                     root = resource.value
@@ -90,14 +90,12 @@ const depends = register({
             }
         }
 
-        return next(processingContext, node.child, ...args)
+        return next(scope, node.child, ...args)
     },
 })
 
 depends.prop = prop
 depends.resource = resource
 depends.value = value
-
-depends.TYPE = TYPE
 
 export default depends
