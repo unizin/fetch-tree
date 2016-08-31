@@ -47,30 +47,14 @@ export default fetchTree({
 
 ## Resource nodes
 
-When nodes get processed they typically return a `value` and `isReady`.
+The most important node types are:
 
-### group({ [propName]: node, [propName]: node })
+1. `selector(selectFunction)` - Wraps an ordinary selector to pull data from your store
+3. `loader({ id, action, selector, lazy = false })` - Allows you to manage how and where actions are fetched.
+2. `entity({ id, apiFunction })` - You provide a function to call to fetch data and store it
+  * `entity` is actually a shortcut for `loader` where `fetch-tree` provides the action and selector
 
-`group` converts each `node` to a value. The most common use for this is as
-`resources` for a component. Every key that where the node is ready becomes a
-prop that will be passed down to your component.
-
-```js
-const resources = group({
-    someProp: /* node definition */
-})
-```
-
-It's best to define groups with an object literal, because it's going to
-process each node in order.
-
-As `group` processes, each node becomes known as a `resource` that you may
-depend on for other nodes.
-
-### group([ node, node, node ])
-
-When `group` is given an array, it will return an array with the values of each
-node.
+Everything else exists to organize these three nodes.
 
 ### selector(selectorFunction(state, ...params))
 
@@ -113,6 +97,37 @@ loader({
     selector: (state, ...params) =>
 })
 ```
+
+### entity({ id, apiFunction })
+
+`entity` is a special version of `loader` that replaces `action` and `selector`
+with a single `apiFunction`. `apiFunction` needs to return a `Promise` for
+whatever data you want to store under that key.
+
+
+### group({ [propName]: node, [propName]: node })
+
+`group` converts each `node` to a value. The most common use for this is as
+`resources` for a component. Every key that where the node is ready becomes a
+prop that will be passed down to your component.
+
+```js
+const resources = group({
+    someProp: /* node definition */
+})
+```
+
+It's best to define groups with an object literal, because it's going to
+process each node in order.
+
+As `group` processes, each node becomes known as a `resource` that you may
+depend on for other nodes.
+
+### group([ node, node, node ])
+
+When `group` is given an array, it will return an array with the values of each
+node.
+
 
 ### depends(dependencies, child)
 
