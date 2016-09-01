@@ -2,8 +2,8 @@
 
 set -e
 
-npm run lint
 npm test
+npm run lint
 
 # Only do this check when run from the root of the project.
 if [ -d .git ] && [ ! -f .git/hooks/pre-commit ]; then

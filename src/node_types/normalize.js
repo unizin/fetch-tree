@@ -6,7 +6,6 @@ export default function normalize(child) {
     }
 
     if (child.TYPE == null) {
-        console.error('node:', child)
         throw new Error('Invalid node')
     }
 
