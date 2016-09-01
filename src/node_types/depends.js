@@ -52,7 +52,7 @@ const depends = register({
         let isReady = true
 
         if (scope.debug) {
-            console.log('node.dependencies: ', ...node.dependencies)
+            console.log('node.dependencies: ', ...node.dependencies) // eslint-disable-line no-console
         }
 
         const args = node.dependencies.map(dep => {
