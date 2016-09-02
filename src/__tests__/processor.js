@@ -9,8 +9,10 @@ const state = {
         { id: 2, message: 'bar', done: true },
     ],
     fetchTree: {
-        "todo-1": true,
-        "todo-2": true,
+        ready: {
+            "todo-1": true,
+            "todo-2": true,
+        },
     },
 }
 

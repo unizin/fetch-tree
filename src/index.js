@@ -6,13 +6,14 @@ import preload from './node_types/preload'
 import debug from './node_types/debug'
 import virtual from './node_types/virtual'
 import lazy from './node_types/lazy'
+import entity from './node_types/entity'
 
 import component from './component'
 import reducer from './actions-reducer'
 
 import { register as registerNodeType } from './processor.js'
 
-export { group, loader, selector, depends, preload, reducer, debug, virtual, lazy }
+export { group, loader, selector, depends, preload, reducer, debug, virtual, lazy, entity }
 
 export { registerNodeType }
 export default component

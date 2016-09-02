@@ -85,7 +85,9 @@ test(
     processorMacro,
     {
         fetchTree: {
-            'key-1': true,
+            ready: {
+                'key-1': true,
+            },
         },
     },
     { isReady: true, value: 'someValue' }
