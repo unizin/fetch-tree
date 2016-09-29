@@ -24,8 +24,8 @@ export const selectIsReady = (state, id) => Boolean(
 )
 
 
-function doneReducer(state = {}, action) {
-    if (action.type === 'ACTION_DONE') {
+function readyReducer(state = {}, action) {
+    if (action.type === ACTION_DONE) {
         return {
             ...state,
             [action.payload]: true,
@@ -47,7 +47,7 @@ function entityReducer(state = {}, action) {
 
 
 const defaultState = {
-    ready: doneReducer(undefined, { type: '__init__' }),
+    ready: readyReducer(undefined, { type: '__init__' }),
     entities: entityReducer(undefined, { type: '__init__' }),
 }
 
@@ -56,12 +56,12 @@ export default function reducer(state = defaultState, action) {
         case ACTION_DONE:
             return {
                 ...state,
-                done: doneReducer(state.done, action),
+                ready: readyReducer(state.ready, action),
             }
         case STORE_ENTITY:
             return {
                 ...state,
-                entities: entityReducer(state.done, action),
+                entities: entityReducer(state.entities, action),
             }
 
         default:
