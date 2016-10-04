@@ -287,13 +287,6 @@ test(`preload with an empty array`, t => {
     t.deepEqual(actual, expected)
 })
 
-test(`preload requires returning an array`, t => {
-    const props = {}
-    const parentTree = preload(() => { return {} })
-
-    t.throws(() => processor(parentTree, state, props), /return an array/i)
-})
-
 test(`groups of arrays will return an array`, t => {
     // I don't think you would really create a group like this, but preload will
     // sometimes use an internal array based group.
