@@ -3,16 +3,20 @@ import normalize from './normalize'
 
 const TYPE = 'depends'
 
+const deprecate = (name, fn) => {
+    return (...args) => {
+        console.error(`deprecated: ${name}`) // eslint-disable-line no-console
+        return fn(...args)
+    }
+}
+
 const prop = (path) => ({ type: 'prop', path })
 const resource = (path) => ({ type: 'resource', path })
 const value = (value) => ({ type: 'value', value })
 
 function normalizeDependency(dep) {
     if (typeof dep === 'string') {
-        dep = {
-            type: 'resource',
-            path: dep,
-        }
+        dep = resource(dep)
     }
 
     if (dep.type !== 'resource' && dep.type !== 'prop' && dep.type !== 'value') {
@@ -94,8 +98,8 @@ const depends = register({
     },
 })
 
-depends.prop = prop
-depends.resource = resource
-depends.value = value
+depends.prop = deprecate('depends.prop', prop)
+depends.resource = deprecate('depends.resource', resource)
+depends.value = deprecate('depends.value', value)
 
 export default depends
