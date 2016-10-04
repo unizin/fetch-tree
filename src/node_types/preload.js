@@ -1,16 +1,17 @@
 import { register } from '../processor'
 import group from './group'
 import withProps from './with-props'
+import virtual from './virtual'
 
 const TYPE = 'preload'
 
 export default register({
     TYPE,
     factory(factory) {
-        return {
+        return virtual({
             TYPE,
             factory,
-        }
+        })
     },
     nodeProcessor(next, scope, node, ...args) {
         const children = node.factory(withProps, ...args)
@@ -22,16 +23,11 @@ export default register({
         if (Array.isArray(children) && children.length === 0) {
             return {
                 isReady: true,
-                excludeProp: true,
             }
         }
 
         const child = group(children)
 
-        const { isReady } = next(scope, child)
-        return {
-            excludeProp: true,
-            isReady,
-        }
+        return next(scope, child)
     },
 })
