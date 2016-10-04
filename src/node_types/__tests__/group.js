@@ -1,4 +1,5 @@
 import test from 'ava'
+import processor from '../../processor'
 import group from '../group'
 
 test(`group with no children`, t => {
@@ -6,16 +7,48 @@ test(`group with no children`, t => {
     t.throws(actual, /missing children/i)
 })
 
-test(`group throws when passed an empty object`, t => {
-    const actual = () => group({})
-    t.throws(actual, /empty children/i)
+test(`processing a group of selectors`, t => {
+    const state = {}
+    const tree = group({
+        one: () => 1,
+    })
+    const props = {}
+
+    const expected = {
+        actionQueue: [],
+        isReady: true,
+        value: {
+            one: 1,
+        },
+    }
+
+    const actual = processor(tree, state, props)
+
+    t.deepEqual(actual, expected)
 })
 
-test(`group throws when passed an empty array`, t => {
-    const actual = () => group([])
-    t.throws(actual, /empty children/i)
-})
 
+test(`processing a (lazy) group of selectors`, t => {
+    const state = {}
+    const tree = group(() => {
+        return ({
+            one: () => 1,
+        })
+    })
+    const props = {}
+
+    const expected = {
+        actionQueue: [],
+        isReady: true,
+        value: {
+            one: 1,
+        },
+    }
+
+    const actual = processor(tree, state, props)
+
+    t.deepEqual(actual, expected)
+})
 
 test(`group normalizes its children`, t => {
     const actual = () => group({
