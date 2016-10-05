@@ -1,25 +1,22 @@
 import React from 'react'
 import Timeline from './timeline.ui.jsx'
 import { resources as storyResources } from './story.jsx'
-import fetchTree, { depends, loader, group, preload } from 'fetch-tree'
+import fetchTree, { depends, loader, group, virtual, withProps, fromProps } from 'fetch-tree'
 import { fetchTimeline } from '../actions'
 import { selectTimeline } from '../reducer'
 
 let storiesPreload = depends( // eslint-disable-line prefer-const
     ['timeline'],
-    preload((useProps, ids) => ids.map(
-        id => useProps({ id }, storyResources)
-    ))
+    virtual(group(ids => ids.map(
+        id => withProps({ id }, storyResources)
+    )))
 )
 
 // uncomment this to disable preloading.
 // storiesPreload = () => null
 
 const resources = group({
-    username: depends(
-        [depends.prop('params')],
-        (state, params) => params.username
-    ),
+    username: fromProps('params.username'),
     timeline: depends(
         ['username'],
         loader({

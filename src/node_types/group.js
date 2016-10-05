@@ -5,33 +5,42 @@ import { map, reduce } from '../utils'
 
 const TYPE = 'group'
 
+const normalizeChildren = (children) => {
+    if (children == null) {
+        throw new Error('Missing children')
+    }
+
+    return map(children, normalize)
+}
+
 const group = register({
     TYPE,
     factory(children) {
-        if (children == null) {
-            throw new Error('Missing children')
-        }
-        if (Array.isArray(children)) {
-            if (children.length === 0) {
-                throw new Error('Empty children') // Are you my mummy?
-            }
-        } else {
-            if (Object.keys(children).length === 0) {
-                throw new Error('Empty children') // Are you my mummy?
+        if (typeof children === 'function') {
+            return {
+                TYPE,
+                factory: children,
             }
         }
 
         return {
             TYPE,
-            children: map(children, normalize),
+            children: normalizeChildren(children),
         }
     },
-    nodeProcessor(next, scope, node) {
+    nodeProcessor(next, scope, node, ...args) {
         const resources = {}
         const { path } = scope
+        let children = node.children
+
+        if (node.factory) {
+            children = normalizeChildren(
+                node.factory(...args)
+            )
+        }
 
         const results = reduce(
-            node.children,
+            children,
             (x, child, key) => {
                 const childScope = {
                     ...scope,
@@ -48,7 +57,7 @@ const group = register({
                     }
                 }
 
-                const nextValue = Array.isArray(node.children) ?
+                const nextValue = Array.isArray(children) ?
                 [...x.value, value] :
                 { ...x.value, [key]: value }
 
@@ -57,7 +66,7 @@ const group = register({
                     value: nextValue,
                 }
             },
-            { isReady: true, value: Array.isArray(node.children) ? [] : {} }
+            { isReady: true, value: Array.isArray(children) ? [] : {} }
         )
 
         return results
