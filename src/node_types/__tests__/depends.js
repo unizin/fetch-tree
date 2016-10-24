@@ -1,5 +1,7 @@
 import test from 'ava'
+import processor from '../../processor'
 import depends from '../depends'
+import group from '../group'
 
 test(`depends with missing first parameter`, t => {
     const actual = () => depends()
@@ -24,39 +26,44 @@ test(`depends normalizes the child`, t => {
 })
 
 function dependsMacro(t, dependencies, expected) {
-    const context = {
-        props: {
-            foo: 'fooProp',
-        },
-        resources: {
-            foo: 'fooResource',
-            bar: 'barResource',
-        },
+    const state = {
+        foo: 'fooResource',
+        bar: 'barResource',
+    }
+    const selectFoo = (state) => state.foo
+    const selectBar = (state) => state.bar
+    const props = {
+        foo: 'fooProp',
     }
 
-    const node = depends(
-        dependencies,
-        { TYPE: 'example' }
-    )
+    const node = group({
+        foo: selectFoo,
+        bar: selectBar,
+        actualResource: depends(
+            dependencies,
+            (state, ...args) => args
+        ),
+    })
 
-    const next = (context, node, ...actual) => {
-        t.deepEqual(actual, expected)
-    }
 
-    depends.nodeProcessor(next, context, node)
+    const { isReady, value } = processor(node, state, props)
+    t.true(isReady)
+
+    const actual = value.actualResource
+    t.deepEqual(actual, expected)
 }
 
-test(`depends with depends.value`, dependsMacro,
-    [depends.value('someValue')],
-    ['someValue']
-)
+// test(`depends with depends.value`, dependsMacro,
+//     [depends.value('someValue')],
+//     ['someValue']
+// )
 
 test(`depends with depends.value`, dependsMacro,
-    ['foo', depends.resource('bar')],
+    ['foo', 'bar'],
     ['fooResource', 'barResource']
 )
 
-test(`depends with depends.value`, dependsMacro,
-    [depends.prop('foo')],
-    ['fooProp']
-)
+// test(`depends with depends.value`, dependsMacro,
+//     [depends.prop('foo')],
+//     ['fooProp']
+// )
