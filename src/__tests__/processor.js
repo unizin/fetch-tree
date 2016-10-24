@@ -2,6 +2,8 @@ import test from 'ava'
 import processor from '../processor'
 import { group, selector, depends, loader, withProps, virtual, fromProps } from '../index'
 
+const dummySelector = (value) => (state) => value // eslint-disable-line no-unused-vars
+
 const state = {
     someCount: 0,
     todos: [
@@ -317,13 +319,13 @@ test(`groups of arrays will return an array`, t => {
     t.deepEqual(actual, expected)
 })
 
-test.failing(`groups of arrays maintain order, but not indexes`, t => {
+test(`groups of arrays maintain order, but not indexes`, t => {
     // I don't think you would really create a group like this, but preload will
     // sometimes use an internal array based group.
     const tree = group([
-        depends([depends.value(3)], todoLoader), // index: 0
-        depends([depends.value(2)], todoLoader), // index: 1
-        depends([depends.value(1)], todoLoader), // index: 2
+        depends([dummySelector(3)], todoLoader), // index: 0
+        depends([dummySelector(2)], todoLoader), // index: 1
+        depends([dummySelector(1)], todoLoader), // index: 2
     ])
 
     const expected = {
@@ -396,13 +398,13 @@ test(`virtual nodes can compute a value without emitting a prop to the component
     t.deepEqual(actual.value, expected.value)
 })
 
-test.failing(`lazy() generates a child node at runtime`, t => {
+test(`lazy() generates a child node at runtime`, t => {
     const tree = group({
         ids: virtual(fromProps('ids')),
         todos: depends(
             ['ids'],
             group((ids) => ids.map(
-                id => depends([depends.value(id)], todoLoader)
+                id => depends([dummySelector(id)], todoLoader)
             ))
         ),
     })
