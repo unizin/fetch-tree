@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import loaderContext from './loader_context'
 import processor from './processor'
-import { withProps } from './node_types/with-props'
+import withProps from './node_types/with-props'
 
 const getDisplayName = Component => (
   Component.displayName ||
