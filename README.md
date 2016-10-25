@@ -138,8 +138,9 @@ depends on component properties, or loaded values of other resources.
 const todoLoader = loader(/* assume it needs an ID */)
 
 const resources = group({
+    ids: virtual(fromProps('ids')),
     allTodos: depends(
-        [fromProps('ids')],
+        [ 'ids' ],
         group((ids) => ids.map(
             id => depends([ () => id ], todoLoader)
         ))
@@ -193,10 +194,11 @@ const resources = group({
 
 `fromProps` usually (see `withProps`) references the props given to your component connected with FetchTree. `propPath` is dot-separated path.
 
-```
+```js
 const resources = group({
+    todoId: virtual(fromProps('category.todoId')),
     todos: depends(
-        fromProps('category.todoId'),
+        [ 'todoId' ],
         todoLoader
     )
 })
