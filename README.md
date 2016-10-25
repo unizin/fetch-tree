@@ -162,7 +162,6 @@ const resources = group({
         [
             'resourceA',
             'resourceB.name',
-            fromProps('componentProperty'),
             (state) => state.someProperty
             () => 'some hardcoded value'
         ],
@@ -213,12 +212,14 @@ cache has been prepared for the children it renders.
 ```js
 
 const todoResource = group({
-    todo: depends( [fromProps('id')], todoLoader )
+    id: virtual(fromProps('id')),
+    todo: depends( ['id'], todoLoader ),
 })
 
 const todoListResource = group({
+    ids: virtual(fromProps('ids'))
     todos: depends(
-        [fromProps('ids')],
+        ['ids'],
         group((ids) => {
             return ids.map(
                 id => withProps({ id }, childTree)
