@@ -5,6 +5,7 @@ import group from '../group'
 import fromProps from '../from-props.js'
 import selector from '../selector.js'
 import virtual from '../virtual'
+import withProps from '../with-props'
 
 test(`depends with missing first parameter`, t => {
     const actual = () => depends()
@@ -50,7 +51,8 @@ function dependsMacro(t, dependencies, expected) {
     })
 
 
-    const { isReady, value } = processor(node, state, props)
+    const nodeWithProps = withProps(props, node)
+    const { isReady, value } = processor(nodeWithProps, state)
     t.true(isReady)
 
     const actual = value.actualResource
