@@ -22,8 +22,12 @@ const contextShape = React.PropTypes.shape({
 const IS_READY = '--loader:is-ready'
 const ACTION_QUEUE = '--loader:action-queue'
 const DISPATCH = '--loader:dispatch'
+const DISPATCH_PROXY = '--loader:dispatchProxy'
 
-export default function ({ component: Component, busy: Busy, resources, mapDispatchToProps = {} }) {
+export default function ({ component: Component, busy: Busy, resources, mapDispatchToProps }) {
+    if (mapDispatchToProps) {
+        throw new Error('mapDispatchToProps was removed. Use the dispatch node type instead')
+    }
     const displayName = `Loader(${getDisplayName(Component)})`
 
     if (resources.TYPE !== 'group') {
@@ -48,6 +52,11 @@ export default function ({ component: Component, busy: Busy, resources, mapDispa
         constructor(props, context) {
             super(props, context)
             this.loaderContext = loaderContext(context.loaderContext)
+            const {
+                [DISPATCH]: dispatch,
+                [DISPATCH_PROXY]: dispatchProxy,
+            } = props
+            dispatchProxy.dispatch = dispatch
         }
 
         getChildContext() {
@@ -64,6 +73,14 @@ export default function ({ component: Component, busy: Busy, resources, mapDispa
             this.loaderContext.execute(dispatch, actionQueue)
         }
 
+        componentWillReceiveProps(nextProps) {
+            const {
+                [DISPATCH]: dispatch,
+                [DISPATCH_PROXY]: dispatchProxy,
+            } = nextProps
+            dispatchProxy.dispatch = dispatch
+        }
+
         componentDidUpdate() {
             const {
                 [ACTION_QUEUE]: actionQueue,
@@ -75,9 +92,11 @@ export default function ({ component: Component, busy: Busy, resources, mapDispa
         render() {
             const {
                 [IS_READY]: isReady,
-                [ACTION_QUEUE]: actionQueue, // eslint-disable-line no-unused-vars
+                [ACTION_QUEUE]: actionQueue,
+                [DISPATCH_PROXY]: dispatchProxy,
                 ...props,
             } = this.props
+            void(actionQueue, dispatchProxy)
 
             if (!isReady) {
                 if (Busy) {
@@ -93,21 +112,33 @@ export default function ({ component: Component, busy: Busy, resources, mapDispa
         }
     }
 
-    function mapStateToProps(state, props) {
-        const localResources = withProps(props, resources)
-        const { isReady, actionQueue, value } = processor(localResources, state)
+    function mapStateToProps() {
+        // Each instance gets its own `dispatchProxy` function that never changes
+        const dispatchProxy = (action) => {
+            // dispatchProxy.dispatch will get attached in the component's constructor
+            // and updated in componentWillReceiveProps
+            if (!dispatchProxy.dispatch) {
+                throw new Error(`Dispatch can't be called yet`)
+            }
+            dispatchProxy.dispatch(action)
+        }
 
-        return {
-            ...value,
-            [IS_READY]: isReady,
-            [ACTION_QUEUE]: actionQueue,
+        return (state, props) => {
+            const localResources = withProps(props, resources)
+            const { isReady, actionQueue, value } = processor(localResources, state)
+
+            return {
+                ...value,
+                [IS_READY]: isReady,
+                [ACTION_QUEUE]: actionQueue,
+                [DISPATCH_PROXY]: dispatchProxy,
+            }
         }
     }
 
-    if (typeof mapDispatchToProps === 'function') {
-        throw new Error('not implemented')
+    const mapDispatch = {
+        [DISPATCH]: (action) => action,
     }
-    mapDispatchToProps[DISPATCH] = (action) => action
 
-    return connect(mapStateToProps, mapDispatchToProps)(LoaderComponent)
+    return connect(mapStateToProps, mapDispatch)(LoaderComponent)
 }
