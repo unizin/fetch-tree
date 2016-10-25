@@ -3,27 +3,13 @@ import normalize from './normalize'
 
 const TYPE = 'depends'
 
-const deprecate = (name, fn) => {
-    return (...args) => {
-        console.error(`deprecated: ${name}`) // eslint-disable-line no-console
-        return fn(...args)
-    }
-}
-
-const prop = (path) => ({ type: 'prop', path })
-const resource = (path) => ({ type: 'resource', path })
-const value = (value) => ({ type: 'value', value })
-
-function normalizeDependency(dep) {
+function verifyDependencies(dep) {
     if (typeof dep === 'string') {
-        dep = resource(dep)
+        return dep
     }
-
-    if (dep.type !== 'resource' && dep.type !== 'prop' && dep.type !== 'value') {
-        throw new Error(`Invalid dependency type: ${dep.type}`)
-    }
-    if (!dep.path && dep.type !== 'value') {
-        throw new Error(`Missing dependency path`)
+    dep = normalize(dep)
+    if (dep.TYPE == null) {
+        throw new Error(`Invalid dependency: ${dep}`)
     }
 
     return dep
@@ -48,7 +34,7 @@ const depends = register({
 
         return {
             TYPE,
-            dependencies: dependencies.map(normalizeDependency),
+            dependencies: dependencies.map(verifyDependencies),
             child,
         }
     },
@@ -62,30 +48,33 @@ const depends = register({
         const args = node.dependencies.map(dep => {
             if (isReady === false) return null
 
-            if (dep.type === 'value') {
-                return dep.value
-            }
-
-            const path = dep.path.split('.')
-            let root
-            if (dep.type === 'prop') {
-                root = scope.props
-            } else if (dep.type === 'resource') {
+            if (typeof dep === 'string') {
+                const path = dep.split('.')
                 const key = path.shift()
                 const resource = scope.resources[key]
 
-                if (resource.isReady) {
-                    root = resource.value
-                } else {
+                if (!resource.isReady) {
                     isReady = false
                     return null
                 }
+
+                return path.reduce(
+                    (value, next) => (value != null ? value[next] : null),
+                    resource.value
+                )
             }
 
-            return path.reduce(
-                (value, next) => (value != null ? value[next] : null),
-                root
-            )
+            if (dep.TYPE != null) {
+                const resource = next(scope, dep)
+                if (!resource.isReady) {
+                    isReady = false
+                    return null
+                }
+
+                return resource.value
+            }
+
+            throw new Error('Invalid Dependency')
         })
 
         if (!isReady) {
@@ -97,9 +86,5 @@ const depends = register({
         return next(scope, node.child, ...args)
     },
 })
-
-depends.prop = deprecate('depends.prop', prop)
-depends.resource = deprecate('depends.resource', resource)
-depends.value = deprecate('depends.value', value)
 
 export default depends

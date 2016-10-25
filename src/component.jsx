@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import loaderContext from './loader_context'
 import processor from './processor'
+import { withProps } from './node_types/with-props'
 
 const getDisplayName = Component => (
   Component.displayName ||
@@ -93,7 +94,8 @@ export default function ({ component: Component, busy: Busy, resources, mapDispa
     }
 
     function mapStateToProps(state, props) {
-        const { isReady, actionQueue, value } = processor(resources, state, props)
+        const localResources = withProps(props, resources)
+        const { isReady, actionQueue, value } = processor(localResources, state)
 
         return {
             ...value,

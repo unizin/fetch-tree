@@ -30,9 +30,12 @@ function next(processingContext, node, ...args) {
 }
 
 export default function processor(node, state, props) {
+    if (props) {
+        throw new Error(`processor does not accept props. Wrap the node in withProps instead`)
+    }
     const actionQueue = []
     const processingContext = {
-        props,
+        props: {},
         state,
         debug: false,
         queue(id, action, args) {

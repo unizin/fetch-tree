@@ -4,6 +4,7 @@ import fromProps from '../from-props'
 import group from '../group'
 import virtual from '../virtual'
 import depends from '../depends'
+import withProps from '../with-props'
 
 test(`fromProps`, t => {
     const state = {
@@ -46,7 +47,8 @@ test(`fromProps`, t => {
         },
     }
 
-    const actual = processor(tree, state, props)
+    const treeWithProps = withProps(props, tree)
+    const actual = processor(treeWithProps, state)
 
     t.deepEqual(actual.isReady, expected.isReady)
     t.deepEqual(actual.actionQueue, expected.actionQueue)

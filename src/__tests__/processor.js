@@ -1,6 +1,8 @@
 import test from 'ava'
 import processor from '../processor'
-import { group, selector, depends, loader, preload, virtual, lazy } from '../index'
+import { group, selector, depends, loader, withProps, virtual, fromProps } from '../index'
+
+const dummySelector = (value) => (state) => value // eslint-disable-line no-unused-vars
 
 const state = {
     someCount: 0,
@@ -35,7 +37,6 @@ const todoLoader = loader({
 
 test(`processor with a single selector`, t => {
     const subject = selector(selectTotalTodos)
-    const props = {}
 
     const expected = {
         actionQueue: [],
@@ -43,7 +44,7 @@ test(`processor with a single selector`, t => {
         value: 2,
     }
 
-    const actual = processor(subject, state, props)
+    const actual = processor(subject, state)
 
     t.deepEqual(actual, expected)
 })
@@ -53,7 +54,6 @@ test(`processor with a group of selectors`, t => {
         totalTodos: selectTotalTodos,
         completedTodos: selectCompletedTodos,
     })
-    const props = {}
 
     const expected = {
         actionQueue: [],
@@ -66,15 +66,16 @@ test(`processor with a group of selectors`, t => {
         },
     }
 
-    const actual = processor(tree, state, props)
+    const actual = processor(tree, state)
 
     t.deepEqual(actual, expected)
 })
 
 test(`processor with a depends(selector)`, t => {
     const tree = group({
+        id: virtual(fromProps('id')),
         todo: depends(
-            [depends.prop('id')],
+            ['id'],
             selector(selectTodo)
         ),
         message: depends(
@@ -93,7 +94,8 @@ test(`processor with a depends(selector)`, t => {
         },
     }
 
-    const actual = processor(tree, state, props)
+    const treeWithProps = withProps(props, tree)
+    const actual = processor(treeWithProps, state)
 
 
     t.deepEqual(actual, expected)
@@ -101,8 +103,9 @@ test(`processor with a depends(selector)`, t => {
 
 test(`processor with a loader (not ready)`, t => {
     const tree = group({
+        id: virtual(fromProps('id')),
         todo: depends(
-            [depends.prop('id')],
+            ['id'],
             todoLoader
         ),
     })
@@ -121,7 +124,8 @@ test(`processor with a loader (not ready)`, t => {
         },
     }
 
-    const actual = processor(tree, state, props)
+    const treeWithProps = withProps(props, tree)
+    const actual = processor(treeWithProps, state)
 
     t.deepEqual(actual, expected)
 })
@@ -137,7 +141,6 @@ test(`processor with a lazy loader`, t => {
             selector: (state) => state.someCount,
         }),
     })
-    const props = {}
 
     const expected = {
         actionQueue: [
@@ -149,7 +152,7 @@ test(`processor with a lazy loader`, t => {
         },
     }
 
-    const actual = processor(tree, state, props)
+    const actual = processor(tree, state)
 
     t.is(actual.isReady, expected.isReady)
     t.deepEqual(actual.value, expected.value)
@@ -158,8 +161,9 @@ test(`processor with a lazy loader`, t => {
 
 test(`processor with a loader (ready)`, t => {
     const tree = group({
+        id: virtual(fromProps('id')),
         todo: depends(
-            [depends.prop('id')],
+            ['id'],
             todoLoader
         ),
     })
@@ -177,7 +181,8 @@ test(`processor with a loader (ready)`, t => {
         },
     }
 
-    const actual = processor(tree, state, props)
+    const treeWithProps = withProps(props, tree)
+    const actual = processor(treeWithProps, state)
 
     t.deepEqual(actual, expected)
 })
@@ -195,7 +200,6 @@ test(`depending on an unready loader`, t => {
             (state, allTodos) => allTodos.length
         ),
     })
-    const props = {}
 
     const expected = {
         isReady: false,
@@ -206,27 +210,29 @@ test(`depending on an unready loader`, t => {
         },
     }
 
-    const actual = processor(tree, state, props)
+    const actual = processor(tree, state)
 
     t.deepEqual(actual, expected)
 })
 
-test(`preload`, t => {
+test(`group(factory) formery preload`, t => {
     const childTree = group({
+        id: virtual(fromProps('id')),
         todo: depends(
-            [depends.prop('id')],
+            ['id'],
             todoLoader
         ),
     })
 
     const parentTree = group({
+        ids: virtual(fromProps('ids')),
         preload: depends(
-            [depends.prop('ids')],
-            preload((useProps, ids) => {
+            ['ids'],
+            virtual(group((ids) => {
                 return ids.map(
-                    id => useProps({ id }, childTree)
+                    id => withProps({ id }, childTree)
                 )
-            })
+            }))
         ),
     })
 
@@ -246,26 +252,29 @@ test(`preload`, t => {
         },
     }
 
-    const actual = processor(parentTree, state, props)
+    const parentTreeWithProps = withProps(props, parentTree)
+    const actual = processor(parentTreeWithProps, state)
     t.deepEqual(actual, expected)
 })
 
 test(`preload with an empty array`, t => {
     const childTree = group({
+        id: virtual(fromProps('id')),
         todo: depends(
-            [depends.prop('id')],
+            ['id'],
             todoLoader
         ),
     })
 
     const parentTree = group({
+        ids: virtual(fromProps('ids')),
         preload: depends(
-            [depends.prop('ids')],
-            preload((useProps, ids) => {
+            ['ids'],
+            virtual(group((ids) => {
                 return ids.map(
-                    id => useProps({ id }, childTree)
+                    id => withProps({ id }, childTree)
                 )
-            })
+            }))
         ),
     })
 
@@ -283,7 +292,8 @@ test(`preload with an empty array`, t => {
         },
     }
 
-    const actual = processor(parentTree, state, props)
+    const parentTreeWithProps = withProps(props, parentTree)
+    const actual = processor(parentTreeWithProps, state)
     t.deepEqual(actual, expected)
 })
 
@@ -303,9 +313,8 @@ test(`groups of arrays will return an array`, t => {
             { id: 2, message: 'bar', done: true },
         ],
     }
-    const props = {}
 
-    const actual = processor(tree, state, props)
+    const actual = processor(tree, state)
 
     t.deepEqual(actual, expected)
 })
@@ -314,9 +323,9 @@ test(`groups of arrays maintain order, but not indexes`, t => {
     // I don't think you would really create a group like this, but preload will
     // sometimes use an internal array based group.
     const tree = group([
-        depends([depends.value(3)], todoLoader), // index: 0
-        depends([depends.value(2)], todoLoader), // index: 1
-        depends([depends.value(1)], todoLoader), // index: 2
+        depends([dummySelector(3)], todoLoader), // index: 0
+        depends([dummySelector(2)], todoLoader), // index: 1
+        depends([dummySelector(1)], todoLoader), // index: 2
     ])
 
     const expected = {
@@ -332,17 +341,17 @@ test(`groups of arrays maintain order, but not indexes`, t => {
             { id: 1, message: 'foo', done: false },
         ],
     }
-    const props = {}
 
-    const actual = processor(tree, state, props)
+    const actual = processor(tree, state)
 
     t.deepEqual(actual, expected)
 })
 
-test(`depends allows a dotted path and doesn't throw on missing props`, t => {
+test(`fromProps/depends allows a dotted path and doesn't throw on missing props`, t => {
     const tree = group({
+        routerLocation: virtual(fromProps('router.location')),
         location: depends(
-            [depends.prop('router.location')],
+            ['routerLocation'],
             (state, location) => location
         ),
     })
@@ -354,9 +363,8 @@ test(`depends allows a dotted path and doesn't throw on missing props`, t => {
             location: null,
         },
     }
-    const props = {}
 
-    const actual = processor(tree, state, props)
+    const actual = processor(tree, state)
 
     t.deepEqual(actual, expected)
 })
@@ -379,9 +387,8 @@ test(`virtual nodes can compute a value without emitting a prop to the component
             completedCount: 1,
         },
     }
-    const props = {}
 
-    const actual = processor(tree, state, props)
+    const actual = processor(tree, state)
 
     t.deepEqual(actual.isReady, expected.isReady)
     t.deepEqual(actual.actionQueue, expected.actionQueue)
@@ -390,13 +397,12 @@ test(`virtual nodes can compute a value without emitting a prop to the component
 
 test(`lazy() generates a child node at runtime`, t => {
     const tree = group({
+        ids: virtual(fromProps('ids')),
         todos: depends(
-            [depends.prop('ids')],
-            lazy(
-                (ids) => group(ids.map(
-                    id => depends([depends.value(id)], todoLoader)
-                ))
-            )
+            ['ids'],
+            group((ids) => ids.map(
+                id => depends([dummySelector(id)], todoLoader)
+            ))
         ),
     })
 
@@ -418,7 +424,8 @@ test(`lazy() generates a child node at runtime`, t => {
         ids: [2, 1],
     }
 
-    const actual = processor(tree, state, props)
+    const treeWithProps = withProps(props, tree)
+    const actual = processor(treeWithProps, state)
 
     t.deepEqual(actual.isReady, expected.isReady)
     t.deepEqual(actual.actionQueue, expected.actionQueue)

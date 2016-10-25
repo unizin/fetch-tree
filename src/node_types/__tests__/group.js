@@ -12,7 +12,6 @@ test(`processing a group of selectors`, t => {
     const tree = group({
         one: () => 1,
     })
-    const props = {}
 
     const expected = {
         actionQueue: [],
@@ -22,7 +21,7 @@ test(`processing a group of selectors`, t => {
         },
     }
 
-    const actual = processor(tree, state, props)
+    const actual = processor(tree, state)
 
     t.deepEqual(actual, expected)
 })
@@ -35,7 +34,6 @@ test(`processing a (lazy) group of selectors`, t => {
             one: () => 1,
         })
     })
-    const props = {}
 
     const expected = {
         actionQueue: [],
@@ -45,7 +43,7 @@ test(`processing a (lazy) group of selectors`, t => {
         },
     }
 
-    const actual = processor(tree, state, props)
+    const actual = processor(tree, state)
 
     t.deepEqual(actual, expected)
 })
