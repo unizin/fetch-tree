@@ -128,12 +128,30 @@ depend on for other nodes.
 When `group` is given an array, it will return an array with the values of each
 node.
 
+### group(factory)
+
+When `group` is given a factory function, it allows you to generate a group while the FetchTree is being processed.
+`factory` is given any `depends` parameters (much like `selector` and `loader`), which is useful for creating a group that
+depends on component properties, or loaded values of other resources.
+
+```js
+const todoLoader = loader(/* assume it needs an ID */)
+
+const resources = group({
+    ids: virtual(fromProps('ids')),
+    allTodos: depends(
+        [ 'ids' ],
+        group((ids) => ids.map(
+            id => depends([ () => id ], todoLoader)
+        ))
+    ),
+})
+```
 
 ### depends(dependencies, child)
 
-This node populates `...params` for its child node. `dependencies` must be an
-array describing where to get the values to populate `...params`. It has a set
-of helper functions for defining the dependencies.
+This node populates `...params` for its child node. `dependencies` is an
+array of nodes and dot-separated paths referring to other resources in this group.
 
 ```js
 const resources = group({
@@ -142,13 +160,12 @@ const resources = group({
 
     depends(
         [
-            depends.resource('resourceA'),
-            // Strings are automatically converted to depends.resource(resourceName)
-            'resourceB',
-            depends.prop('propA')
-            depends.value('someValue')
+            'resourceA',
+            'resourceB.name',
+            (state) => state.someProperty
+            () => 'some hardcoded value'
         ],
-        selector((state, resourceA, resourceB, propA, value) => {
+        selector((state, resourceA, resourceBName, componentProperty, hardcodedValue) => {
         })
     )
 })
@@ -172,6 +189,47 @@ const resources = group({
 })
 ```
 
+### fromProps(propPath)
+
+`fromProps` usually (see `withProps`) references the props given to your component connected with FetchTree. `propPath` is dot-separated path.
+
+```js
+const resources = group({
+    todoId: virtual(fromProps('category.todoId')),
+    todos: depends(
+        [ 'todoId' ],
+        todoLoader
+    )
+})
+```
+
+## withProps(props, node)
+
+`withProps` sets the props used by `fromProps`.  This is usually set for you using your connected component's props by the FetchTree higher order component
+but can be useful to set yourself. For example, `withProps` can be used to "preload" resources, that is, to cause some parent component to be considered "loading" until a
+cache has been prepared for the children it renders.
+
+```js
+
+const todoResource = group({
+    id: virtual(fromProps('id')),
+    todo: depends( ['id'], todoLoader ),
+})
+
+const todoListResource = group({
+    ids: virtual(fromProps('ids'))
+    todos: depends(
+        ['ids'],
+        group((ids) => {
+            return ids.map(
+                id => withProps({ id }, childTree)
+            )
+        })
+    ),
+})
+
+```
+
 ### debug(child)
 
 You can wrap nodes in `debug` to log that section of the tree, and to log what's
@@ -180,53 +238,6 @@ happening as it gets processed.
 `group.debug(children)` is a shortcut for `debug(group(children))`. This allows
 you to quickly add and remove debugging without having to deal with parens that
 might be many lines away.
-
-### lazy(factory)
-
-`lazy` allows you to generate nodes at runtime so that they can depend on other
-resources. `factory` accepts `...params`, much like `selector` and `loader`.
-
-```js
-const todoLoader = loader(/* assume it needs an ID */)
-
-const resources = group({
-    allTodos: depends(
-        [depends.prop('todoIds')],
-        lazy((ids) => group(ids.map(
-            // yup, this is as awkward as it looks :(
-            id => depends([depends.value(id)], todoLoader)
-        )))
-    )
-
-})
-```
-
-### preload(factory)
-
-`preload` is a special `virtual()` version of `lazy()`.
-
-```js
-const todoResources = group({
-    /* Everything for displaying an individual Todo */
-    todo: depends(
-        [depends.prop('id')],
-        todoLoader
-    )
-})
-
-const todoListResources = group({
-    todos: depends(
-        [depends.prop('ids')]
-        preload(
-            // useProps is a special node that is only available here. it is the
-            // only mechanism for replacing the `prop` seen by child nodes.
-            (useProps, ids) => ids.map(
-                id => useProps({ id }, todoResources)
-            )
-        )
-    )
-})
-```
 
 
 ## Open Source
