@@ -17,6 +17,7 @@
         "no-param-reassign" : 0,
         "no-shadow" : 0,
         "no-unused-expressions": 0,
+        no-unused-vars: ["error", { "varsIgnorePattern": "[iI]gnored" }],
         "indent": [ 2, 4, { "SwitchCase": 1 } ],
         "react/jsx-indent-props": [ 1, 4 ],
         "react/jsx-indent": [ 1, 4 ],

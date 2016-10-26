@@ -1,21 +1,5 @@
-import { register } from '../processor'
+import withContext from './with-context'
 
-const TYPE = 'useProps'
-
-export default register({
-    TYPE,
-    factory(props, child) {
-        return {
-            TYPE,
-            props,
-            child,
-        }
-    },
-    nodeProcessor(next, scope, node, ...args) {
-        const childScope = {
-            ...scope,
-            props: node.props,
-        }
-        return next(childScope, node.child, ...args)
-    },
-})
+export default function withProps(props, child) {
+    return withContext('props', props, child)
+}
