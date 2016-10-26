@@ -30,7 +30,7 @@ test(`dispatch throws if there isn't a dispatch in context`, t => {
     })
 })
 
-test(`dispatch throws if there isn't a dispatch in context`, () => {
+test(`ent-to-end test of a dispatch node`, () => {
     const setFilter = td.function('setFilter')
     const expectedAction = {
         type: 'SET_FILTER',

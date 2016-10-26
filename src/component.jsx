@@ -92,11 +92,10 @@ export default function ({ component: Component, busy: Busy, resources, mapDispa
         render() {
             const {
                 [IS_READY]: isReady,
-                [ACTION_QUEUE]: actionQueue,
-                [DISPATCH_PROXY]: dispatchProxy,
+                [ACTION_QUEUE]: ignoredActionQueue,
+                [DISPATCH_PROXY]: ignoredDispatchProxy,
                 ...props,
             } = this.props
-            void(actionQueue, dispatchProxy)
 
             if (!isReady) {
                 if (Busy) {
