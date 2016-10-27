@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import loaderContext from './loader_context'
 import processor from './processor'
 import withProps from './node_types/with-props'
+import withDispatch from './node_types/with-dispatch'
 
 const getDisplayName = Component => (
   Component.displayName ||
@@ -123,7 +124,9 @@ export default function ({ component: Component, busy: Busy, resources, mapDispa
         }
 
         return (state, props) => {
-            const localResources = withProps(props, resources)
+            const localResources = withProps(props,
+                withDispatch(dispatchProxy, resources)
+            )
             const { isReady, actionQueue, value } = processor(localResources, state)
 
             return {
