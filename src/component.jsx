@@ -120,7 +120,7 @@ export default function ({ component: Component, busy: Busy, resources, mapDispa
             if (!dispatchProxy.dispatch) {
                 throw new Error(`Dispatch can't be called yet`)
             }
-            dispatchProxy.dispatch(action)
+            return dispatchProxy.dispatch(action)
         }
 
         return (state, props) => {
