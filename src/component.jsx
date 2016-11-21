@@ -38,11 +38,12 @@ function nonConnectedWrapper({ component: Component, resourceGroup }) {
         NonConnectedFetchTree.displayName = `NonConnectedFetchTree(${getDisplayName(Component)})`
     }
 
+    NonConnectedFetchTree.originalComponent = Component
     NonConnectedFetchTree.resourceGroup = resourceGroup
     return hoistStatics(NonConnectedFetchTree, Component)
 }
 
-export default function (options) {
+export default function fetchTree(options) {
     const { connected = true, resourceGroup = options.resources } = options
     const { component: Component, busy: Busy } = options
 
@@ -54,8 +55,16 @@ export default function (options) {
         console.log('The resources key has be deprecated and renamed resourceGroup') // eslint-disable-line no-console
     }
 
-    if (resourceGroup.TYPE !== 'group') {
-        if (resourceGroup.TYPE === 'debug' && resourceGroup.child.TYPE === 'group') {
+    if (Component.resourceGroup) {
+        return fetchTree({
+            ...options,
+            resourceGroup: Component.resourceGroup,
+            component: Component.originalComponent,
+        })
+    }
+
+    if (!resourceGroup || resourceGroup.TYPE !== 'group') {
+        if (resourceGroup && resourceGroup.TYPE === 'debug' && resourceGroup.child.TYPE === 'group') {
             // It's ok to wrap the group in a debug node
         } else {
             throw new Error('resourceGroup must be a `group()`')
@@ -68,6 +77,7 @@ export default function (options) {
 
     class LoaderComponent extends React.Component {
         static resourceGroup = resourceGroup
+        static originalComponent = Component
 
         static childContextTypes = {
             loaderContext: contextShape,

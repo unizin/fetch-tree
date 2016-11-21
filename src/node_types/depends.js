@@ -53,6 +53,9 @@ const depends = register({
                 const key = path.shift()
                 const resource = scope.resources[key]
 
+                if (resource == null) {
+                    throw new Error(`Resource not found: ${key}`)
+                }
                 if (!resource.isReady) {
                     isReady = false
                     return null
