@@ -120,7 +120,7 @@ export default function (options) {
                 [IS_READY]: isReady,
                 [ACTION_QUEUE]: ignoredActionQueue,
                 [DISPATCH_PROXY]: ignoredDispatchProxy,
-                ...props,
+                ...props
             } = this.props
 
             if (!isReady) {
