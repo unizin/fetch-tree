@@ -1,5 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import hoistStatics from 'hoist-non-react-statics'
+
 import loaderContext from './loader_context'
 import processor from './processor'
 import withContext from './node_types/with-context'
@@ -26,18 +28,18 @@ const DISPATCH = '--loader:dispatch'
 const DISPATCH_PROXY = '--loader:dispatchProxy'
 
 function nonConnectedWrapper({ component: Component, resourceGroup }) {
-    function WrappedComponent(props) {
+    function NonConnectedFetchTree(props) {
         return <Component {...props} />
     }
     if (process.env.NODE_ENV !== 'production') {
         // We don't need any proptypes, but the wrapped component needs to not use
         // the child's propTypes.
-        WrappedComponent.propTypes = {}
-        WrappedComponent.displayName = `NonConnectedFetchTree(${getDisplayName(Component)})`
+        NonConnectedFetchTree.propTypes = {}
+        NonConnectedFetchTree.displayName = `NonConnectedFetchTree(${getDisplayName(Component)})`
     }
 
-    WrappedComponent.resourceGroup = resourceGroup
-    return WrappedComponent
+    NonConnectedFetchTree.resourceGroup = resourceGroup
+    return hoistStatics(NonConnectedFetchTree, Component)
 }
 
 export default function (options) {
