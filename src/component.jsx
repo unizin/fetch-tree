@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import loaderContext from './loader_context'
 import processor from './processor'
-import withProps from './node_types/with-props'
+import withContext from './node_types/with-context'
 import withDispatch from './node_types/with-dispatch'
 
 const getDisplayName = Component => (
@@ -25,22 +25,47 @@ const ACTION_QUEUE = '--loader:action-queue'
 const DISPATCH = '--loader:dispatch'
 const DISPATCH_PROXY = '--loader:dispatchProxy'
 
-export default function ({ component: Component, busy: Busy, resources, mapDispatchToProps }) {
-    if (mapDispatchToProps) {
+function nonConnectedWrapper({ component: Component, resourceGroup }) {
+    function WrappedComponent(props) {
+        return <Component {...props} />
+    }
+    if (process.env.NODE_ENV !== 'production') {
+        // We don't need any proptypes, but the wrapped component needs to not use
+        // the child's propTypes.
+        WrappedComponent.propTypes = {}
+        WrappedComponent.displayName = `NonConnectedFetchTree(${getDisplayName(Component)})`
+    }
+
+    WrappedComponent.resourceGroup = resourceGroup
+    return WrappedComponent
+}
+
+export default function (options) {
+    const { connected = true, resourceGroup = options.resources } = options
+    const { component: Component, busy: Busy } = options
+
+    if (options.mapDispatchToProps) {
         throw new Error('mapDispatchToProps was removed. Use the dispatch node type instead')
     }
-    const displayName = `Loader(${getDisplayName(Component)})`
 
-    if (resources.TYPE !== 'group') {
-        if (resources.TYPE === 'debug' && resources.child.TYPE === 'group') {
+    if (process.env.NODE_ENV !== 'production' && options.resources) {
+        console.log('The resources key has be deprecated and renamed resourceGroup') // eslint-disable-line no-console
+    }
+
+    if (resourceGroup.TYPE !== 'group') {
+        if (resourceGroup.TYPE === 'debug' && resourceGroup.child.TYPE === 'group') {
             // It's ok to wrap the group in a debug node
         } else {
-            throw new Error('resources must be a `group()`')
+            throw new Error('resourceGroup must be a `group()`')
         }
     }
 
+    if (!connected) {
+        return nonConnectedWrapper(options)
+    }
+
     class LoaderComponent extends React.Component {
-        static displayName = displayName
+        static resourceGroup = resourceGroup
 
         static childContextTypes = {
             loaderContext: contextShape,
@@ -111,6 +136,9 @@ export default function ({ component: Component, busy: Busy, resources, mapDispa
             )
         }
     }
+    if (process.env.NODE_ENV !== 'production') {
+        LoaderComponent.displayName = `FetchTree(${getDisplayName(Component)})`
+    }
 
     function mapStateToProps() {
         // Each instance gets its own `dispatchProxy` function that never changes
@@ -124,8 +152,8 @@ export default function ({ component: Component, busy: Busy, resources, mapDispa
         }
 
         return (state, props) => {
-            const localResources = withProps(props,
-                withDispatch(dispatchProxy, resources)
+            const localResources = withContext('props', props,
+                withDispatch(dispatchProxy, resourceGroup)
             )
             const { isReady, actionQueue, value } = processor(localResources, state)
 

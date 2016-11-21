@@ -6,6 +6,7 @@ import debug from './node_types/debug'
 import virtual from './node_types/virtual'
 import entity from './node_types/entity'
 import withContext from './node_types/with-context'
+import child from './node_types/child'
 import withProps from './node_types/with-props'
 import withDispatch from './node_types/with-dispatch'
 import dispatch from './node_types/dispatch'
@@ -18,7 +19,7 @@ import { register as registerNodeType } from './processor.js'
 
 export { group, loader, selector, depends, reducer, debug, virtual, entity, withContext }
 export { withDispatch, dispatch }
-export { withProps, fromProps }
+export { child, withProps, fromProps }
 
 export { registerNodeType }
 export default component
