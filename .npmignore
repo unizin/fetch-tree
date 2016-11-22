@@ -8,3 +8,4 @@ coverage
 src/
 example/
 pre-commit.sh
+yarn.lock
