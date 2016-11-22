@@ -63,12 +63,16 @@ export default function fetchTree(options) {
         })
     }
 
-    if (!resourceGroup || resourceGroup.TYPE !== 'group') {
-        if (resourceGroup && resourceGroup.TYPE === 'debug' && resourceGroup.child.TYPE === 'group') {
-            // It's ok to wrap the group in a debug node
-        } else {
-            throw new Error('resourceGroup must be a `group()`')
+    if (resourceGroup) {
+        if (resourceGroup.TYPE !== 'group') {
+            if (resourceGroup && resourceGroup.TYPE === 'debug' && resourceGroup.child.TYPE === 'group') {
+                // It's ok to wrap the group in a debug node
+            } else {
+                throw new Error('resourceGroup must be a `group()`')
+            }
         }
+    } else {
+        throw new Error('resourceGroup is required')
     }
 
     if (!connected) {
@@ -164,8 +168,10 @@ export default function fetchTree(options) {
         }
 
         return (state, props) => {
-            const localResources = withContext('props', props,
-                withDispatch(dispatchProxy, resourceGroup)
+            const localResources = withContext('path', [LoaderComponent.displayName || 'Component'],
+                withContext('props', props,
+                    withDispatch(dispatchProxy, resourceGroup)
+                )
             )
             const { isReady, actionQueue, value } = processor(localResources, state)
 

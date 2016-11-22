@@ -13,6 +13,10 @@ export default register({
     nodeProcessor(next, scope, node, ...args) {
         const { props, type: Component } = node.childFactory(...args)
 
+        if (!Component.resourceGroup) {
+            throw new Error(`child() node at ${scope.path.join('.')} does not appear to be a fetch-tree component`)
+        }
+
         const childScope = {
             ...scope,
             props,
