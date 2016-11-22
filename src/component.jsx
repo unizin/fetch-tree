@@ -182,5 +182,7 @@ export default function fetchTree(options) {
         [DISPATCH]: (action) => action,
     }
 
-    return connect(mapStateToProps, mapDispatch)(LoaderComponent)
+    return connect(mapStateToProps, mapDispatch)(
+        hoistStatics(LoaderComponent, Component)
+    )
 }
