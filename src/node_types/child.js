@@ -1,6 +1,36 @@
 import { register } from '../processor'
 import depends from './depends'
 
+function processChild(next, scope, child) {
+    const { props, type: Component } = child
+
+    if (!Component.resourceGroup) {
+        throw new Error(`child() node at ${scope.path.join('.')} does not appear to be a fetch-tree component`)
+    }
+
+    const childScope = {
+        ...scope,
+        props,
+    }
+
+    return next(childScope, Component.resourceGroup)
+}
+
+
+function processChildren(next, scope, children) {
+    return children.reduce((tmp, child) => {
+        const { isReady, value } = processChild(next, scope, child)
+
+        return {
+            isReady: (tmp.isReady && isReady),
+            value: (tmp.isReady && isReady)
+            ? { ...child.props, ...value }
+            : null,
+        }
+    }, { isReady: true })
+}
+
+
 const TYPE = 'child'
 export default register({
     TYPE,
@@ -11,24 +41,11 @@ export default register({
         )
     },
     nodeProcessor(next, scope, node, ...args) {
-        const { props, type: Component } = node.childFactory(...args)
+        const children = node.childFactory(...args)
 
-        if (!Component.resourceGroup) {
-            throw new Error(`child() node at ${scope.path.join('.')} does not appear to be a fetch-tree component`)
+        if (Array.isArray(children)) {
+            return processChildren(next, scope, children)
         }
-
-        const childScope = {
-            ...scope,
-            props,
-        }
-
-        const { isReady, value } = next(childScope, Component.resourceGroup)
-
-        return {
-            isReady,
-            value: isReady
-                ? { ...props, ...value }
-                : null,
-        }
+        return processChildren(next, scope, [children]).pop()
     },
 })
