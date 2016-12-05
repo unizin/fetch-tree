@@ -1,5 +1,6 @@
 export const ACTION_DONE = '@@fetchTree/action_done'
 export const STORE_ENTITY = '@@fetchTree/store_entity'
+export const REFRESH_CACHE = '@@fetchTree/refresh_cache'
 
 export const setActionStatusDone = (id) => ({
     type: ACTION_DONE,
@@ -10,6 +11,8 @@ export const storeEntity = (id, value) => ({
     type: STORE_ENTITY,
     payload: { id, value },
 })
+
+export const refreshCache = () => ({ type: REFRESH_CACHE })
 
 export const selectEntity = (state, id) => (
     state.fetchTree != null
@@ -23,6 +26,11 @@ export const selectIsReady = (state, id) => Boolean(
     && state.fetchTree.ready[id] != null
 )
 
+export const selectCacheKey = (state) => (
+    (state.fetchTree != null)
+        ? state.fetchTree.cacheKey
+        : 0
+)
 
 function readyReducer(state = {}, action) {
     if (action.type === ACTION_DONE) {
@@ -47,12 +55,18 @@ function entityReducer(state = {}, action) {
 
 
 const defaultState = {
+    cacheKey: 0,
     ready: readyReducer(undefined, { type: '__init__' }),
     entities: entityReducer(undefined, { type: '__init__' }),
 }
 
 export default function reducer(state = defaultState, action) {
     switch (action.type) {
+        case REFRESH_CACHE:
+            return {
+                ...state,
+                cacheKey: state.cacheKey + 1,
+            }
         case ACTION_DONE:
             return {
                 ...state,
