@@ -5,15 +5,16 @@ export default function (parent) {
     }
     const executedIds = new Map()
 
-    function hasExecuted(id) {
-        return executedIds.has(id) || (
-            parent != null ? parent.hasExecuted(id) : false
+    function hasExecuted(id, cacheKey) {
+        return (
+            (executedIds.has(id) && executedIds.get(id) === cacheKey)
+            || (parent != null ? parent.hasExecuted(id, cacheKey) : false)
         )
     }
 
-    function execute(dispatch, actions) {
+    function execute(dispatch, actions, cacheKey) {
         actions.forEach(({ id, action, args, debug }) => {
-            if (!hasExecuted(id)) {
+            if (!hasExecuted(id, cacheKey)) {
                 let tmp
                 if (debug) {
                     /* eslint-disable no-console */
@@ -32,7 +33,7 @@ export default function (parent) {
                 } else {
                     tmp = dispatch(action(...args))
                 }
-                executedIds.set(id, true)
+                executedIds.set(id, cacheKey)
 
                 if (!tmp || !tmp.then) {
                     // Use the thunk middleware and return a promise from the thunk.

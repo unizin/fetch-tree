@@ -6,6 +6,7 @@ import loaderContext from './loader_context'
 import processor from './processor'
 import withContext from './node_types/with-context'
 import withDispatch from './node_types/with-dispatch'
+import { selectCacheKey } from './actions-reducer.js'
 
 const getDisplayName = Component => (
   Component.displayName ||
@@ -26,6 +27,7 @@ const IS_READY = '--loader:is-ready'
 const ACTION_QUEUE = '--loader:action-queue'
 const DISPATCH = '--loader:dispatch'
 const DISPATCH_PROXY = '--loader:dispatchProxy'
+const CACHE_KEY = '--loader:cacheKey'
 
 function nonConnectedWrapper({ component: Component, resourceGroup }) {
     function NonConnectedFetchTree(props) {
@@ -111,8 +113,9 @@ export default function fetchTree(options) {
             const {
                 [ACTION_QUEUE]: actionQueue,
                 [DISPATCH]: dispatch,
+                [CACHE_KEY]: cacheKey,
             } = this.props
-            this.loaderContext.execute(dispatch, actionQueue)
+            this.loaderContext.execute(dispatch, actionQueue, cacheKey)
         }
 
         componentWillReceiveProps(nextProps) {
@@ -127,8 +130,9 @@ export default function fetchTree(options) {
             const {
                 [ACTION_QUEUE]: actionQueue,
                 [DISPATCH]: dispatch,
+                [CACHE_KEY]: cacheKey,
             } = this.props
-            this.loaderContext.execute(dispatch, actionQueue)
+            this.loaderContext.execute(dispatch, actionQueue, cacheKey)
         }
 
         render() {
@@ -136,6 +140,7 @@ export default function fetchTree(options) {
                 [IS_READY]: isReady,
                 [ACTION_QUEUE]: ignoredActionQueue,
                 [DISPATCH_PROXY]: ignoredDispatchProxy,
+                [CACHE_KEY]: ignoredCacheCounter,
                 ...props
             } = this.props
 
@@ -168,6 +173,7 @@ export default function fetchTree(options) {
         }
 
         return (state, props) => {
+            const cacheKey = selectCacheKey(state)
             const localResources = withContext('path', [LoaderComponent.displayName || 'Component'],
                 withContext('props', props,
                     withDispatch(dispatchProxy, resourceGroup)
@@ -180,6 +186,7 @@ export default function fetchTree(options) {
                 [IS_READY]: isReady,
                 [ACTION_QUEUE]: actionQueue,
                 [DISPATCH_PROXY]: dispatchProxy,
+                [CACHE_KEY]: cacheKey,
             }
         }
     }

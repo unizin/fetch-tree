@@ -28,6 +28,7 @@ test(`loaderContext.hasExecuted`, t => {
 })
 
 test(`loaderContext.execute on a new action`, t => {
+    const cacheKey = 0
     const dispatch = mockDispatch()
     const context = loaderContext()
 
@@ -39,19 +40,20 @@ test(`loaderContext.execute on a new action`, t => {
     const actionReturn = Promise.resolve(null)
     td.when(action.action(...action.args)).thenReturn(actionReturn)
 
-    t.is(context.hasExecuted('some-action'), false)
+    t.is(context.hasExecuted('some-action', cacheKey), false)
 
     // Once an action has been executed in a context, it will not get
     // re-executed.
-    context.execute(dispatch, [action])
-    context.execute(dispatch, [action])
+    context.execute(dispatch, [action], cacheKey)
+    context.execute(dispatch, [action], cacheKey)
 
-    t.is(context.hasExecuted('some-action'), true)
+    t.is(context.hasExecuted('some-action', cacheKey), true)
 
     td.verify(dispatch(actionReturn), { times: 1 })
 })
 
 test(`loaderContext with a parent`, t => {
+    const cacheKey = 0
     const dispatch = mockDispatch()
     const parent = loaderContext()
     const child = loaderContext(parent)
@@ -64,10 +66,36 @@ test(`loaderContext with a parent`, t => {
     const actionReturn = Promise.resolve(null)
     td.when(action.action(...action.args)).thenReturn(actionReturn)
 
-    parent.execute(dispatch, [action])
+    parent.execute(dispatch, [action], cacheKey)
 
-    t.is(parent.hasExecuted('some-action'), true)
-    t.is(child.hasExecuted('some-action'), true)
+    t.is(parent.hasExecuted('some-action', cacheKey), true)
+    t.is(child.hasExecuted('some-action', cacheKey), true)
 
     td.verify(dispatch(actionReturn), { times: 1 })
+})
+
+test(`loaderContext with a cache key`, t => {
+    let cacheKey = 0
+    const dispatch = mockDispatch()
+    const parent = loaderContext()
+    const child = loaderContext(parent)
+
+    const action = {
+        id: 'some-action',
+        action: td.function('.action'),
+        args: [1, 2],
+    }
+    const actionReturn = Promise.resolve(null)
+    td.when(action.action(...action.args)).thenReturn(actionReturn)
+
+    parent.execute(dispatch, [action], cacheKey)
+
+    t.is(parent.hasExecuted('some-action', cacheKey), true)
+    t.is(child.hasExecuted('some-action', cacheKey), true)
+
+    td.verify(dispatch(actionReturn), { times: 1 })
+
+    cacheKey++
+    t.is(parent.hasExecuted('some-action', cacheKey), false)
+    t.is(child.hasExecuted('some-action', cacheKey), false)
 })

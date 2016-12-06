@@ -13,13 +13,14 @@ import dispatch from './node_types/dispatch'
 import fromProps from './node_types/from-props'
 
 import component from './component'
-import reducer from './actions-reducer'
+import reducer, { refreshCache } from './actions-reducer'
 
 import { register as registerNodeType } from './processor.js'
 
 export { group, loader, selector, depends, reducer, debug, virtual, entity, withContext }
 export { withDispatch, dispatch }
 export { child, withProps, fromProps }
+export { refreshCache }
 
 export { registerNodeType }
 export default component
