@@ -1,13 +1,12 @@
-import test from 'ava'
 import processor from '../../processor'
 import group from '../group'
 
-test(`group with no children`, t => {
+it(`group with no children`, () => {
     const actual = () => group()
-    t.throws(actual, /missing children/i)
+    expect(actual).toThrowError(/missing children/i)
 })
 
-test(`processing a group of selectors`, t => {
+it(`processing a group of selectors`, () => {
     const state = {}
     const tree = group({
         one: () => 1,
@@ -23,11 +22,11 @@ test(`processing a group of selectors`, t => {
 
     const actual = processor(tree, state)
 
-    t.deepEqual(actual, expected)
+    expect(actual).toEqual(expected)
 })
 
 
-test(`processing a (lazy) group of selectors`, t => {
+it(`processing a (lazy) group of selectors`, () => {
     const state = {}
     const tree = group(() => {
         return ({
@@ -45,19 +44,19 @@ test(`processing a (lazy) group of selectors`, t => {
 
     const actual = processor(tree, state)
 
-    t.deepEqual(actual, expected)
+    expect(actual).toEqual(expected)
 })
 
-test(`group normalizes its children`, t => {
+it(`group normalizes its children`, () => {
     const actual = () => group({
         foo: { TYPE: 'anything is ok here' },
         bar: () => 'potato',
     })
 
-    t.notThrows(actual, /wat/i, 'message')
+    expect(actual).not.toThrowError(/wat/i)
 })
 
-test(`group return value`, t => {
+it(`group return value`, () => {
     const expected = {
         TYPE: group.TYPE,
         children: {
@@ -71,5 +70,5 @@ test(`group return value`, t => {
         bar: { TYPE: 'bar type' },
     })
 
-    t.deepEqual(actual, expected)
+    expect(actual).toEqual(expected)
 })

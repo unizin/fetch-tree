@@ -1,12 +1,11 @@
-import test from 'ava'
 import virtual from '../virtual'
 import processor from '../../processor'
 
-test(`virtual throws if you don't supply a child node`, t => {
-    t.throws(() => virtual(), /Missing child/)
+it(`virtual throws if you don't supply a child node`, () => {
+    expect(() => virtual()).toThrowError(/Missing child/)
 })
 
-test(`virtual adds excludeProp to the return value`, t => {
+it(`virtual adds excludeProp to the return value`, () => {
     const state = { foo: 'fooState' }
 
     const node = virtual(
@@ -15,6 +14,6 @@ test(`virtual adds excludeProp to the return value`, t => {
 
     const actual = processor(node, state)
 
-    t.is(actual.value, 'fooState')
-    t.true(actual.excludeProp)
+    expect(actual.value).toBe('fooState')
+    expect(actual.excludeProp).toBe(true)
 })

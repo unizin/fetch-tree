@@ -1,4 +1,3 @@
-import test from 'ava'
 import td from 'testdouble'
 import processor from '../../processor'
 import dispatch from '../dispatch'
@@ -6,7 +5,7 @@ import group from '../group'
 import withDispatch from '../with-dispatch'
 
 
-test(`dispatch throws if there isn't a dispatch in context`, t => {
+it(`dispatch throws if there isn't a dispatch in context`, () => {
     const store = {
         getState: () => ({}),
         dispatch(action) {
@@ -19,18 +18,18 @@ test(`dispatch throws if there isn't a dispatch in context`, t => {
         setFilter: dispatch(setFilter),
     })
 
-    t.throws(() => {
+    expect(() => {
         processor(tree, store.getState())
-    }, /No dispatch/)
+    }).toThrowError(/No dispatch/)
 
 
     const treeWithDispatch = withDispatch(store.dispatch, tree)
-    t.notThrows(() => {
+    expect(() => {
         processor(treeWithDispatch, store.getState())
-    })
+    }).not.toThrow()
 })
 
-test(`ent-to-end test of a dispatch node`, () => {
+it(`ent-to-end test of a dispatch node`, () => {
     const setFilter = td.function('setFilter')
     const expectedAction = {
         type: 'SET_FILTER',

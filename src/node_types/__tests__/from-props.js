@@ -1,4 +1,3 @@
-import test from 'ava'
 import processor from '../../processor'
 import fromProps from '../from-props'
 import group from '../group'
@@ -6,7 +5,7 @@ import virtual from '../virtual'
 import depends from '../depends'
 import withProps from '../with-props'
 
-test(`fromProps`, t => {
+it(`fromProps`, () => {
     const state = {
         todos: {
             1: {
@@ -50,7 +49,7 @@ test(`fromProps`, t => {
     const treeWithProps = withProps(props, tree)
     const actual = processor(treeWithProps, state)
 
-    t.deepEqual(actual.isReady, expected.isReady)
-    t.deepEqual(actual.actionQueue, expected.actionQueue)
-    t.deepEqual(actual.value, expected.value)
+    expect(actual.isReady).toEqual(expected.isReady)
+    expect(actual.actionQueue).toEqual(expected.actionQueue)
+    expect(actual.value).toEqual(expected.value)
 })

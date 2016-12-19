@@ -1,10 +1,9 @@
-import test from 'ava'
 import entity from '../entity'
 
 function missing(t, errorRegex, node) {
-    t.throws(() => entity(node), errorRegex)
+    expect(() => entity(node)).toThrowError(errorRegex)
 }
 missing.title = (providedTitle, regex) => `error: ${regex}`
 
-test(missing, /id.*function/, { id: 'static-id' })
-test(missing, /apiFunction.*function/, { id: (id) => `key-${id}` })
+it(missing, /id.*function/, { id: 'static-id' })
+it(missing, /apiFunction.*function/, { id: (id) => `key-${id}` })

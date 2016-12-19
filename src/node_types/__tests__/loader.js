@@ -1,32 +1,31 @@
-import test from 'ava'
 import td from 'testdouble'
 import loader from '../loader'
 
-test(`loader without an action`, t => {
+it(`loader without an action`, () => {
     const actual = () => loader()
 
     // https://github.com/avajs/ava/issues/779
-    t.throws(actual, /missing action/i)
+    expect(actual).toThrowError(/missing action/i)
 })
 
-test(`loader without a selector`, t => {
+it(`loader without a selector`, () => {
     const actual = () => loader({
         action: () => null,
     })
 
-    t.throws(actual, /missing selector/i)
+    expect(actual).toThrowError(/missing selector/i)
 })
 
-test(`loader without an id function`, t => {
+it(`loader without an id function`, () => {
     const actual = () => loader({
         action: () => null,
         selector: () => null,
     })
 
-    t.throws(actual, /missing id/i)
+    expect(actual).toThrowError(/missing id/i)
 })
 
-test(`loader return type`, t => {
+it(`loader return type`, () => {
     const id = () => `foo`
     const selector = () => 'select'
     const action = () => null
@@ -45,7 +44,7 @@ test(`loader return type`, t => {
         action,
     })
 
-    t.deepEqual(actual, expected)
+    expect(actual).toEqual(expected)
 })
 
 function processorMacro(t, state, expected) {
@@ -69,18 +68,18 @@ function processorMacro(t, state, expected) {
     const actual = loader.nodeProcessor(next, scope, node, todoId)
 
     td.verify(scope.queue('key-1', nodeDefinition.action, [todoId]))
-    t.deepEqual(actual, expected)
+    expect(actual).toEqual(expected)
 }
 
 
-test(
+it(
     'macro (not ready)',
     processorMacro,
     {},
     { isReady: false, value: undefined }
 )
 
-test(
+it(
     'macro (ready)',
     processorMacro,
     {

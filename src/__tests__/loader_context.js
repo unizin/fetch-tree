@@ -1,4 +1,4 @@
-import test from 'ava'
+
 import td from 'testdouble'
 import loaderContext from '../loader_context'
 
@@ -14,20 +14,20 @@ function mockDispatch() {
     return dispatch
 }
 
-test(`loaderContext interface`, t => {
+it(`loaderContext interface`, () => {
     const expected = loaderContext()
 
-    t.is(typeof expected.execute, 'function')
-    t.is(typeof expected.hasExecuted, 'function')
+    expect(typeof expected.execute).toBe('function')
+    expect(typeof expected.hasExecuted).toBe('function')
 })
 
-test(`loaderContext.hasExecuted`, t => {
+it(`loaderContext.hasExecuted`, () => {
     const context = loaderContext()
 
-    t.is(context.hasExecuted('some-action'), false)
+    expect(context.hasExecuted('some-action')).toBe(false)
 })
 
-test(`loaderContext.execute on a new action`, t => {
+it(`loaderContext.execute on a new action`, () => {
     const cacheKey = 0
     const dispatch = mockDispatch()
     const context = loaderContext()
@@ -40,19 +40,19 @@ test(`loaderContext.execute on a new action`, t => {
     const actionReturn = Promise.resolve(null)
     td.when(action.action(...action.args)).thenReturn(actionReturn)
 
-    t.is(context.hasExecuted('some-action', cacheKey), false)
+    expect(context.hasExecuted('some-action', cacheKey)).toBe(false)
 
     // Once an action has been executed in a context, it will not get
     // re-executed.
     context.execute(dispatch, [action], cacheKey)
     context.execute(dispatch, [action], cacheKey)
 
-    t.is(context.hasExecuted('some-action', cacheKey), true)
+    expect(context.hasExecuted('some-action', cacheKey)).toBe(true)
 
     td.verify(dispatch(actionReturn), { times: 1 })
 })
 
-test(`loaderContext with a parent`, t => {
+it(`loaderContext with a parent`, () => {
     const cacheKey = 0
     const dispatch = mockDispatch()
     const parent = loaderContext()
@@ -68,13 +68,13 @@ test(`loaderContext with a parent`, t => {
 
     parent.execute(dispatch, [action], cacheKey)
 
-    t.is(parent.hasExecuted('some-action', cacheKey), true)
-    t.is(child.hasExecuted('some-action', cacheKey), true)
+    expect(parent.hasExecuted('some-action', cacheKey)).toBe(true)
+    expect(child.hasExecuted('some-action', cacheKey)).toBe(true)
 
     td.verify(dispatch(actionReturn), { times: 1 })
 })
 
-test(`loaderContext with a cache key`, t => {
+it(`loaderContext with a cache key`, () => {
     let cacheKey = 0
     const dispatch = mockDispatch()
     const parent = loaderContext()
@@ -90,12 +90,12 @@ test(`loaderContext with a cache key`, t => {
 
     parent.execute(dispatch, [action], cacheKey)
 
-    t.is(parent.hasExecuted('some-action', cacheKey), true)
-    t.is(child.hasExecuted('some-action', cacheKey), true)
+    expect(parent.hasExecuted('some-action', cacheKey)).toBe(true)
+    expect(child.hasExecuted('some-action', cacheKey)).toBe(true)
 
     td.verify(dispatch(actionReturn), { times: 1 })
 
     cacheKey++
-    t.is(parent.hasExecuted('some-action', cacheKey), false)
-    t.is(child.hasExecuted('some-action', cacheKey), false)
+    expect(parent.hasExecuted('some-action', cacheKey)).toBe(false)
+    expect(child.hasExecuted('some-action', cacheKey)).toBe(false)
 })

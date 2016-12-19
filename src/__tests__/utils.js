@@ -1,7 +1,6 @@
-import test from 'ava'
 import { map, reduce } from '../utils'
 
-test(`map over an object`, t => {
+it(`map over an object`, () => {
     const msg = `"what should it do?"`
     const expected = {
         foo: 2,
@@ -14,10 +13,10 @@ test(`map over an object`, t => {
         bar: 2,
     }, double)
 
-    t.deepEqual(actual, expected, msg)
+    expect(actual).toEqual(expected)
 })
 
-test(`reduce an object`, t => {
+it(`reduce an object`, () => {
     const msg = `"what should it do?"`
     const expected = [
         ['foo', 1],
@@ -35,5 +34,5 @@ test(`reduce an object`, t => {
 
     const actual = reduce(data, processor, [])
 
-    t.deepEqual(actual, expected, msg)
+    expect(actual).toEqual(expected)
 })

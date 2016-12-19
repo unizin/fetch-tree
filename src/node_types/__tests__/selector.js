@@ -1,13 +1,12 @@
-import test from 'ava'
 import selector from '../selector'
 
-test(`selector requires a function`, t => {
+it(`selector requires a function`, () => {
     const actual = () => selector()
 
-    t.throws(actual, /missing selector/i)
+    expect(actual).toThrowError(/missing selector/i)
 })
 
-test(`selector return value`, t => {
+it(`selector return value`, () => {
     const select = () => 'foo'
 
     const expected = {
@@ -17,5 +16,5 @@ test(`selector return value`, t => {
 
     const actual = selector(select)
 
-    t.deepEqual(actual, expected)
+    expect(actual).toEqual(expected)
 })

@@ -1,4 +1,3 @@
-import test from 'ava'
 import processor from '../../processor'
 import depends from '../depends'
 import group from '../group'
@@ -7,26 +6,26 @@ import selector from '../selector.js'
 import virtual from '../virtual'
 import withProps from '../with-props'
 
-test(`depends with missing first parameter`, t => {
+it(`depends with missing first parameter`, () => {
     const actual = () => depends()
 
-    t.throws(actual, /missing dependencies/i)
+    expect(actual).toThrowError(/missing dependencies/i)
 })
 
-test(`depends with empty dependencies`, t => {
+it(`depends with empty dependencies`, () => {
     const actual = () => depends([])
 
-    t.throws(actual, /missing dependencies/i)
+    expect(actual).toThrowError(/missing dependencies/i)
 })
 
-test(`depends normalizes the child`, t => {
+it(`depends normalizes the child`, () => {
     const selector = () => 'whatever'
     const actual = () => depends(
         ['foo'],
         selector
     )
 
-    t.notThrows(actual, /child.*loader/i)
+    expect(actual).not.toThrowError(/child.*loader/i)
 })
 
 const selectFoo = (state) => state.foo
@@ -53,23 +52,23 @@ function dependsMacro(t, dependencies, expected) {
 
     const nodeWithProps = withProps(props, node)
     const { isReady, value } = processor(nodeWithProps, state)
-    t.true(isReady)
+    expect(isReady).toBe(true)
 
     const actual = value.actualResource
-    t.deepEqual(actual, expected)
+    expect(actual).toEqual(expected)
 }
 
-test(`depends with a selector node`, dependsMacro,
+it(`depends with a selector node`, dependsMacro,
     [selector(selectFoo)],
     ['fooResource']
 )
 
-test(`depending on a function automatically wraps it in selector()`, dependsMacro,
+it(`depending on a function automatically wraps it in selector()`, dependsMacro,
     [selectFoo],
     ['fooResource']
 )
 
-test(`If you need a static value, you can use a selector that ignores state`, dependsMacro,
+it(`If you need a static value, you can use a selector that ignores state`, dependsMacro,
     [function dummySelector(state) {
         void(state)
         return 'someValue'
@@ -77,17 +76,17 @@ test(`If you need a static value, you can use a selector that ignores state`, de
     ['someValue']
 )
 
-test(`Using strings will provide sibling resources`, dependsMacro,
+it(`Using strings will provide sibling resources`, dependsMacro,
     ['foo', 'bar'],
     ['fooResource', 'barResource']
 )
 
-test(`you can embed a fromProps (Not sure if I recommend it though)`, dependsMacro,
+it(`you can embed a fromProps (Not sure if I recommend it though)`, dependsMacro,
     [fromProps('foo')],
     ['fooProp']
 )
 
-test(`When depending on props, I think it's often better to depend on a virtual sibling`, dependsMacro,
+it(`When depending on props, I think it's often better to depend on a virtual sibling`, dependsMacro,
     ['virtualFoo'],
     ['fooProp']
 )

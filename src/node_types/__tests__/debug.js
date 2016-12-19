@@ -1,7 +1,6 @@
-import test from 'ava'
 import debug from '../debug'
 
-test(`debug.processor sets debug in the context and processes its child`, t => {
+it(`debug.processor sets debug in the context and processes its child`, () => {
     const childNode = { TYPE: 'example' }
     const node = debug(childNode)
 
@@ -12,17 +11,17 @@ test(`debug.processor sets debug in the context and processes its child`, t => {
 
     const next = (childContext, node) => {
         // The node sets debug in the context
-        t.is(childContext.debug, true)
+        expect(childContext.debug).toBe(true)
         // This is a NEW context, not modified
-        t.not(childContext, context)
+        expect(childContext).not.toBe(context)
         // The new context inherits the existing properties
-        t.is(childContext.someNonsenseValue, context.someNonsenseValue)
+        expect(childContext.someNonsenseValue).toBe(context.someNonsenseValue)
         // the child node is processed unmodified
-        t.is(node, childNode)
+        expect(node).toBe(childNode)
     }
 
     debug.nodeProcessor(next, context, node)
 
     // Original context was not modified
-    t.is(context.debug, false)
+    expect(context.debug).toBe(false)
 })
