@@ -1,7 +1,6 @@
 import { map, reduce } from '../utils'
 
 it(`map over an object`, () => {
-    const msg = `"what should it do?"`
     const expected = {
         foo: 2,
         bar: 4,
@@ -17,7 +16,6 @@ it(`map over an object`, () => {
 })
 
 it(`reduce an object`, () => {
-    const msg = `"what should it do?"`
     const expected = [
         ['foo', 1],
         ['bar', 2],

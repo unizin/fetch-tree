@@ -1,9 +1,15 @@
 import entity from '../entity'
 
-function missing(t, errorRegex, node) {
-    expect(() => entity(node)).toThrowError(errorRegex)
-}
-missing.title = (providedTitle, regex) => `error: ${regex}`
+test(`error: id.*function`, () => {
+    const actual = { id: 'static-id' }
+    const expected = /id.*function/
 
-it(missing, /id.*function/, { id: 'static-id' })
-it(missing, /apiFunction.*function/, { id: (id) => `key-${id}` })
+    expect(() => entity(actual)).toThrowError(expected)
+})
+
+test(`error: id.*function`, () => {
+    const actual = { id: (id) => `key-${id}` }
+    const expected = /apiFunction.*function/
+
+    expect(() => entity(actual)).toThrowError(expected)
+})

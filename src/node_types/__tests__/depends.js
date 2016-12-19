@@ -30,7 +30,7 @@ it(`depends normalizes the child`, () => {
 
 const selectFoo = (state) => state.foo
 const selectBar = (state) => state.bar
-function dependsMacro(t, dependencies, expected) {
+function dependsMacro(dependencies, expected) {
     const state = {
         foo: 'fooResource',
         bar: 'barResource',
@@ -58,35 +58,35 @@ function dependsMacro(t, dependencies, expected) {
     expect(actual).toEqual(expected)
 }
 
-it(`depends with a selector node`, dependsMacro,
+it(`depends with a selector node`, () => dependsMacro(
     [selector(selectFoo)],
     ['fooResource']
-)
+))
 
-it(`depending on a function automatically wraps it in selector()`, dependsMacro,
+it(`depending on a function automatically wraps it in selector()`, () => dependsMacro(
     [selectFoo],
     ['fooResource']
-)
+))
 
-it(`If you need a static value, you can use a selector that ignores state`, dependsMacro,
+it(`If you need a static value, you can use a selector that ignores state`, () => dependsMacro(
     [function dummySelector(state) {
         void(state)
         return 'someValue'
     }],
     ['someValue']
-)
+))
 
-it(`Using strings will provide sibling resources`, dependsMacro,
+it(`Using strings will provide sibling resources`, () => dependsMacro(
     ['foo', 'bar'],
     ['fooResource', 'barResource']
-)
+))
 
-it(`you can embed a fromProps (Not sure if I recommend it though)`, dependsMacro,
+it(`you can embed a fromProps (Not sure if I recommend it though)`, () => dependsMacro(
     [fromProps('foo')],
     ['fooProp']
-)
+))
 
-it(`When depending on props, I think it's often better to depend on a virtual sibling`, dependsMacro,
+it(`When depending on props, I think it's often better to depend on a virtual sibling`, () => dependsMacro(
     ['virtualFoo'],
     ['fooProp']
-)
+))

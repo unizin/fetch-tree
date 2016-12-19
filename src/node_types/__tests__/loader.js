@@ -47,7 +47,7 @@ it(`loader return type`, () => {
     expect(actual).toEqual(expected)
 })
 
-function processorMacro(t, state, expected) {
+function processorMacro(state, expected) {
     const todoId = 1
 
     const nodeDefinition = {
@@ -72,16 +72,12 @@ function processorMacro(t, state, expected) {
 }
 
 
-it(
-    'macro (not ready)',
-    processorMacro,
+it('macro (not ready)', () => processorMacro(
     {},
     { isReady: false, value: undefined }
-)
+))
 
-it(
-    'macro (ready)',
-    processorMacro,
+it('macro (ready)', () => processorMacro(
     {
         fetchTree: {
             ready: {
@@ -90,4 +86,4 @@ it(
         },
     },
     { isReady: true, value: 'someValue' }
-)
+))

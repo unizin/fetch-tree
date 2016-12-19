@@ -7,8 +7,8 @@
     "build": "BABEL_ENV=production babel src -d lib --ignore __tests__",
     "lint": "eslint --ext .js --ext .jsx src/",
     "prepublish": "npm run build",
-    "report": "nyc report --reporter=html",
-    "test": "nyc ava"
+    "report": "jest --coverage",
+    "test": "jest"
   },
   "ava": {
     "files": [
@@ -36,7 +36,6 @@
   },
   "homepage": "https://github.com/unizin/fetch-tree#readme",
   "devDependencies": {
-    "ava": "^0.15.2",
     "babel-cli": "^6.10.1",
     "babel-eslint": "^7.1.1",
     "babel-plugin-syntax-trailing-function-commas": "^6.8.0",
@@ -51,7 +50,6 @@
     "eslint-plugin-react": "^5.2.2",
     "hoist-non-react-statics": "^1.2.0",
     "jest": "^18.0.0",
-    "nyc": "^6.6.1",
     "react": "^15.1.0",
     "react-redux": "^4.4.5",
     "redux": "^3.5.2",

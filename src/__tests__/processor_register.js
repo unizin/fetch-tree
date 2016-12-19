@@ -3,15 +3,27 @@ import { register } from '../processor'
 // This registers group into the processor.
 import '../node_types/group'
 
-function processorError(t, errorRegex, node) {
-    expect(() => register(node)).toThrowError(errorRegex)
-}
-processorError.title = (providedTitle, regex) => `error: ${regex}`
-
 const TYPE = 'RegistrationTest'
-it(processorError, /missing TYPE/, {})
-it(processorError, /missing factory/, { TYPE })
-it(processorError, /missing nodeProcessor/, { TYPE, factory() {} })
-
-// group already exists:
-it(processorError, /already registered/, { TYPE: 'group', factory() {}, nodeProcessor() {} })
+describe(`processor_register`, () => {
+    test(`error: missing TYPE`, () => {
+        const errorRegex = /missing TYPE/
+        const node = {}
+        expect(() => register(node)).toThrowError(errorRegex)
+    })
+    test(`error: missing factory`, () => {
+        const errorRegex = /missing factory/
+        const node = { TYPE }
+        expect(() => register(node)).toThrowError(errorRegex)
+    })
+    test(`error: missing nodeProcessor`, () => {
+        const errorRegex = /missing nodeProcessor/
+        const node = { TYPE, factory() {} }
+        expect(() => register(node)).toThrowError(errorRegex)
+    })
+    test(`error: already registered`, () => {
+        const errorRegex = /already registered/
+        // group is a built in node type
+        const node = { TYPE: 'group', factory() {}, nodeProcessor() {} }
+        expect(() => register(node)).toThrowError(errorRegex)
+    })
+})
