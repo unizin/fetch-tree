@@ -8,6 +8,7 @@ import withContext from './node_types/with-context'
 import withProps from './node_types/with-props'
 import withDispatch from './node_types/with-dispatch'
 import { selectCacheKey } from './actions-reducer.js'
+import { map, reduce } from './utils'
 
 const getDisplayName = Component => (
   Component.displayName ||
@@ -174,6 +175,43 @@ export default function fetchTree(options) {
     }
     if (process.env.NODE_ENV !== 'production') {
         LoaderComponent.displayName = `FetchTree(${getDisplayName(Component)})`
+        let group = resourceGroup
+        if (group.TYPE === 'debug') {
+            group = group.child
+        }
+
+        const mergePropShape = (propPaths, node) => {
+            if (node.TYPE === 'virtual' || node.TYPE === 'debug') {
+                return mergePropShape(propPaths, node.child)
+            }
+
+            if (node.TYPE === 'fromProps') {
+                const path = node.path.split('.')
+                const propName = path.shift()
+
+                propPaths[propName] = propPaths[propName] || {}
+                if (path.length > 0) {
+                    path.reduce((current, path) => {
+                        current[path] = current[path] || {}
+                        return current[path]
+                    }, propPaths[propName])
+                }
+            }
+
+            return propPaths
+        }
+        // This produces a tree of objects representing all known props.
+        const propPaths = reduce(group.children, mergePropShape, {})
+
+        LoaderComponent.propTypes = map(propPaths, function makeProptype(tmp) {
+            if (Object.keys(tmp).length === 0) {
+                return React.PropTypes.any.isRequired
+            }
+
+            return React.PropTypes.shape(
+                map(tmp, makeProptype)
+            ).isRequired
+        })
     }
 
     function mapStateToProps() {
