@@ -1,0 +1,131 @@
+exports[`test Preload the leaves data before rendering 1`] = `
+<ul>
+  <li>
+    <div>
+      id: 1
+      <input
+        checked={false}
+        type="checkbox" />
+      <p>
+        Fouti hi rovumjak wuwab ojki utemun ti voblom mefup ivkiz nadahuw ci.
+      </p>
+    </div>
+  </li>
+  <li>
+    <div>
+      id: 2
+      <input
+        checked={true}
+        type="checkbox" />
+      <p>
+        Bev rip asu rosob lo su za wirun kubvaw nadridzez cabfed temekuinu co.
+      </p>
+    </div>
+  </li>
+  <li>
+    <div>
+      id: 3
+      <input
+        checked={true}
+        type="checkbox" />
+      <p>
+        Liuna igana pucodmek emik hapo tuczuc vokme podikru vokuse horu mum tion catke pohabe wipewen zavse osawa.
+      </p>
+    </div>
+  </li>
+  <li>
+    <div>
+      id: 4
+      <input
+        checked={false}
+        type="checkbox" />
+      <p>
+        Mufkepgi kuretfu vucuce gardece leh nah ra gajlovzes hovwuc oca girgege zivupor ikjahwas wikesa ba ah.
+      </p>
+    </div>
+  </li>
+  <li>
+    <div>
+      id: 5
+      <input
+        checked={false}
+        type="checkbox" />
+      <p>
+        Gem pujhi elugij mifopa bic bon ra ihaphi mit gasezuk tutfozos be iwko pulme ewehe fuene cozmo marotev.
+      </p>
+    </div>
+  </li>
+</ul>
+`;
+
+exports[`test Render a set of leaves individually 1`] = `
+<ul>
+  <li>
+    <div>
+      id: 1
+      <input
+        checked={false}
+        type="checkbox" />
+      <p>
+        Fouti hi rovumjak wuwab ojki utemun ti voblom mefup ivkiz nadahuw ci.
+      </p>
+    </div>
+  </li>
+  <li>
+    <div>
+      id: 2
+      <input
+        checked={true}
+        type="checkbox" />
+      <p>
+        Bev rip asu rosob lo su za wirun kubvaw nadridzez cabfed temekuinu co.
+      </p>
+    </div>
+  </li>
+  <li>
+    <div>
+      id: 3
+      <input
+        checked={true}
+        type="checkbox" />
+      <p>
+        Liuna igana pucodmek emik hapo tuczuc vokme podikru vokuse horu mum tion catke pohabe wipewen zavse osawa.
+      </p>
+    </div>
+  </li>
+  <li>
+    <div>
+      id: 4
+      <input
+        checked={false}
+        type="checkbox" />
+      <p>
+        Mufkepgi kuretfu vucuce gardece leh nah ra gajlovzes hovwuc oca girgege zivupor ikjahwas wikesa ba ah.
+      </p>
+    </div>
+  </li>
+  <li>
+    <div>
+      id: 5
+      <input
+        checked={false}
+        type="checkbox" />
+      <p>
+        Gem pujhi elugij mifopa bic bon ra ihaphi mit gasezuk tutfozos be iwko pulme ewehe fuene cozmo marotev.
+      </p>
+    </div>
+  </li>
+</ul>
+`;
+
+exports[`test When you render a connected leaf, it fetches its own data 1`] = `
+<div>
+  id: 1
+  <input
+    checked={false}
+    type="checkbox" />
+  <p>
+    Fouti hi rovumjak wuwab ojki utemun ti voblom mefup ivkiz nadahuw ci.
+  </p>
+</div>
+`;

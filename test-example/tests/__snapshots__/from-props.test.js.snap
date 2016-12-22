@@ -1,0 +1,11 @@
+exports[`test use group.debug to log what fetchTree is doing 1`] = `
+<pre>
+  {
+      \"params\": {
+          \"id\": 1
+      },
+      \"id\": 1,
+      \"baz\": null
+  }
+</pre>
+`;
