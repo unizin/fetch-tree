@@ -7,18 +7,13 @@ function verifyDependencies(dep) {
     if (typeof dep === 'string') {
         return dep
     }
-    dep = normalize(dep)
-    if (dep.TYPE == null) {
-        throw new Error(`Invalid dependency: ${dep}`)
-    }
-
-    return dep
+    return normalize(dep)
 }
 
 const depends = register({
     TYPE,
-    factory(dependencies = [], child) {
-        if (!Array.isArray(dependencies)) {
+    factory(dependencies, child) {
+        if (!dependencies || !Array.isArray(dependencies)) {
             throw new Error(`dependencies must be an array`)
         }
         if (dependencies.length === 0) {
@@ -28,9 +23,6 @@ const depends = register({
             throw new Error('Missing child')
         }
         child = normalize(child)
-        if (!child.TYPE) {
-            throw new Error('Invalid child type')
-        }
 
         return {
             TYPE,
@@ -67,17 +59,13 @@ const depends = register({
                 )
             }
 
-            if (dep.TYPE != null) {
-                const resource = next(scope, dep)
-                if (!resource.isReady) {
-                    isReady = false
-                    return null
-                }
-
-                return resource.value
+            const resource = next(scope, dep)
+            if (!resource.isReady) {
+                isReady = false
+                return null
             }
 
-            throw new Error('Invalid Dependency')
+            return resource.value
         })
 
         if (!isReady) {

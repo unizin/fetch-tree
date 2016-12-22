@@ -29,10 +29,7 @@ function next(processingContext, node, ...args) {
     return value
 }
 
-export default function processor(node, state, props) {
-    if (props) {
-        throw new Error(`processor does not accept props. Wrap the node in withProps instead`)
-    }
+export default function processor(node, state) {
     const actionQueue = []
     const processingContext = {
         props: {},
@@ -57,6 +54,7 @@ export default function processor(node, state, props) {
 
 export const register = ({ TYPE, factory, nodeProcessor }) => {
     if (!TYPE) { throw new Error('missing TYPE') }
+    if (typeof TYPE !== 'string') { throw new Error('Invalid TYPE (it must be a string)') }
     if (!factory) { throw new Error('missing factory') }
     if (!nodeProcessor) { throw new Error('missing nodeProcessor') }
     if (visitors[TYPE]) {

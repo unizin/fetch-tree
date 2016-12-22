@@ -8,13 +8,13 @@ export default register({
         const { action, selector, id, lazy = false } = options
 
         if (typeof action !== 'function') {
-            throw new Error('Missing action')
+            throw new Error('action must be a function')
         }
         if (typeof selector !== 'function') {
-            throw new Error('Missing selector')
+            throw new Error('selector must be a function')
         }
         if (typeof id !== 'function') {
-            throw new Error('Missing id')
+            throw new Error('id must be a function')
         }
 
         return {

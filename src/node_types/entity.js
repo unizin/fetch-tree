@@ -5,9 +5,14 @@ export const entityAction = (id, promise) => (dispatch) => {
     return promise.then((value) => dispatch(storeEntity(id, value)))
 }
 
-export default function factory({ id, apiFunction }) {
-    if (typeof id !== 'function') { throw new Error(`id must be a function`) }
-    if (typeof apiFunction !== 'function') { throw new Error(`apiFunction must be a function`) }
+export default function factory(options = {}) {
+    const { id, apiFunction } = options
+    if (typeof id !== 'function') {
+        throw new Error(`id must be a function`)
+    }
+    if (typeof apiFunction !== 'function') {
+        throw new Error(`apiFunction must be a function`)
+    }
 
     return loader({
         id,

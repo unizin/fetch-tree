@@ -2,9 +2,14 @@ import { register } from '../processor'
 
 const TYPE = 'dispatch'
 
+const dummyCreator = (action) => action
+
 export default register({
     TYPE,
-    factory(actionCreator) {
+    factory(actionCreator = dummyCreator) {
+        if (typeof actionCreator !== 'function') {
+            throw new Error('actionCreator must be a function')
+        }
         return {
             TYPE,
             actionCreator,
@@ -12,6 +17,7 @@ export default register({
     },
     nodeProcessor(next, scope, node) {
         const { dispatch } = scope
+        /* istanbul ignore if: dispatch is placed in scope by the component */
         if (!dispatch) {
             throw new Error(`No dispatch found on scope`)
         }

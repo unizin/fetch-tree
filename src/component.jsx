@@ -5,6 +5,7 @@ import hoistStatics from 'hoist-non-react-statics'
 import loaderContext from './loader_context'
 import processor from './processor'
 import withContext from './node_types/with-context'
+import withProps from './node_types/with-props'
 import withDispatch from './node_types/with-dispatch'
 import { selectCacheKey } from './actions-reducer.js'
 
@@ -91,6 +92,10 @@ export default function fetchTree(options) {
 
         static contextTypes = {
             loaderContext: contextShape,
+            testMonitor: React.PropTypes.shape({
+                setStatus: React.PropTypes.func.isRequired,
+                unregister: React.PropTypes.func.isRequired,
+            }),
         }
 
         constructor(props, context) {
@@ -110,12 +115,7 @@ export default function fetchTree(options) {
         }
 
         componentDidMount() {
-            const {
-                [ACTION_QUEUE]: actionQueue,
-                [DISPATCH]: dispatch,
-                [CACHE_KEY]: cacheKey,
-            } = this.props
-            this.loaderContext.execute(dispatch, actionQueue, cacheKey)
+            this.afterRender()
         }
 
         componentWillReceiveProps(nextProps) {
@@ -127,18 +127,33 @@ export default function fetchTree(options) {
         }
 
         componentDidUpdate() {
+            this.afterRender()
+        }
+
+        componentWillUnmount() {
+            if (this.context.testMonitor && process.env.NODE_ENV !== 'production') {
+                this.context.testMonitor.unregister(this)
+            }
+        }
+
+        afterRender = () => {
             const {
+                [IS_READY]: isReady,
                 [ACTION_QUEUE]: actionQueue,
                 [DISPATCH]: dispatch,
                 [CACHE_KEY]: cacheKey,
             } = this.props
             this.loaderContext.execute(dispatch, actionQueue, cacheKey)
+            if (this.context.testMonitor && process.env.NODE_ENV !== 'production') {
+                this.context.testMonitor.setStatus(this, isReady)
+            }
         }
 
         render() {
             const {
                 [IS_READY]: isReady,
                 [ACTION_QUEUE]: ignoredActionQueue,
+                [DISPATCH]: ignoredDispatch,
                 [DISPATCH_PROXY]: ignoredDispatchProxy,
                 [CACHE_KEY]: ignoredCacheCounter,
                 ...props
@@ -175,7 +190,7 @@ export default function fetchTree(options) {
         return (state, props) => {
             const cacheKey = selectCacheKey(state)
             const localResources = withContext('path', [LoaderComponent.displayName || 'Component'],
-                withContext('props', props,
+                withProps(props,
                     withDispatch(dispatchProxy, resourceGroup)
                 )
             )
