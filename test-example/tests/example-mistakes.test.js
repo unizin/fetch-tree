@@ -49,7 +49,8 @@ describe(`mistakes that throw while loading`, () => {
                     ['id'],
                     loader({
                         id(id) { return `data-${id}` },
-                        // oops, this calculates and ID and then doesn't return it
+			// fetch-tree expects loader actions to be
+			// asynchronous. They must return a promise.
                         action() { return { type: 'STUFF' } },
                         selector() {},
                     })
