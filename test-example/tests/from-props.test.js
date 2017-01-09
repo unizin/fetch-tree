@@ -1,4 +1,5 @@
 import React from 'react'
+import td from 'testdouble'
 
 import { renderSnapshot } from './test-utils.js'
 import fetchTree, { group, fromProps } from 'fetch-tree'
@@ -25,6 +26,8 @@ test(`use group.debug to log what fetchTree is doing`, async () => {
     const params = {
         id: 1,
     }
+    const errors = []
+    td.replace(console, 'error', (message) => errors.push(message))
     const report = await renderSnapshot(
         <ConnectedDummy params={params} />
     )
@@ -37,4 +40,7 @@ test(`use group.debug to log what fetchTree is doing`, async () => {
     })
     expect(report.apiRequests).toEqual({})
     expect(report.loadingScreens).toBe(0)
+    expect(errors.shift() || "").toMatch(/^Warning:.*The prop `params.foo`/)
+    expect(errors.shift() || "").toMatch(/^Warning:.*The prop `fakeProp`/)
+    expect(errors.length).toBe(0)
 })
