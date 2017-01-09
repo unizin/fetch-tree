@@ -1,0 +1,7 @@
+exports[`test passing dispatch 1`] = `
+<button
+  className="increment"
+  onClick={[Function]}>
+  1
+</button>
+`;

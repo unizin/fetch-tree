@@ -1,6 +1,7 @@
 
 
 export function map(objOrArray, fn) {
+    /* istanbul ignore if: We dont' need to verify Array.prototype.map */
     if (Array.isArray(objOrArray)) {
         return objOrArray.map(fn)
     }
@@ -15,6 +16,7 @@ export function map(objOrArray, fn) {
 }
 
 export function reduce(objOrArray, fn, value) {
+    /* istanbul ignore if: We dont' need to verify Array.prototype.reduce */
     if (Array.isArray(objOrArray)) {
         return objOrArray.reduce(fn, value)
     }

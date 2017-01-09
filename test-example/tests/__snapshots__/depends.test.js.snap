@@ -1,0 +1,51 @@
+exports[`test depends()/child() may depend on nodes instead of names of sibling resources 1`] = `
+<pre>
+  {
+      \"params\": {
+          \"id\": 1
+      },
+      \"myTodos\": [
+          {
+              \"id\": 93,
+              \"todo\": {
+                  \"id\": 93,
+                  \"done\": false,
+                  \"note\": \"Coniga zukah uz ewaga waawi zeka tutedha mo ta vupor meji bovze.\"
+              }
+          },
+          {
+              \"id\": 84,
+              \"todo\": {
+                  \"id\": 84,
+                  \"done\": false,
+                  \"note\": \"Heram jiba lovlatar acsuva barup nedet goapi rinzas ekna jaune omgi nuc.\"
+              }
+          },
+          {
+              \"id\": 8,
+              \"todo\": {
+                  \"id\": 8,
+                  \"done\": true,
+                  \"note\": \"Acujolwik mubaltu fow je wiv nage oroh odo mi utfi suvik hiojood.\"
+              }
+          },
+          {
+              \"id\": 34,
+              \"todo\": {
+                  \"id\": 34,
+                  \"done\": true,
+                  \"note\": \"Onedjic hu puclan cula gacok reefo kawhidha soken nobeg aguahi pizinivo fe usib ahuwib ka po.\"
+              }
+          },
+          {
+              \"id\": 9,
+              \"todo\": {
+                  \"id\": 9,
+                  \"done\": false,
+                  \"note\": \"Gapuw fefal ijtal walrum lisnare navo sommep doka mi howaz dafwa hil pu faluh zig rihin osa.\"
+              }
+          }
+      ]
+  }
+</pre>
+`;

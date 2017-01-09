@@ -1,8 +1,5 @@
 import { setActionStatusDone } from './actions-reducer'
 export default function (parent) {
-    if (parent && !parent.hasExecuted) {
-        throw new Error('invalid parent')
-    }
     const executedIds = new Map()
 
     function hasExecuted(id, cacheKey) {
@@ -21,14 +18,8 @@ export default function (parent) {
                     const groupName = `action: ${id}`
                     console.groupCollapsed(groupName)
                     console.log('...args: ', ...args)
-                    try {
-                        tmp = dispatch(action(...args))
-                    } catch (e) {
-                        console.error('Error executing:', id)
-                        throw e
-                    } finally {
-                        console.groupEnd(groupName)
-                    }
+                    tmp = dispatch(action(...args))
+                    console.groupEnd(groupName)
                     /* eslint-enable no-console */
                 } else {
                     tmp = dispatch(action(...args))

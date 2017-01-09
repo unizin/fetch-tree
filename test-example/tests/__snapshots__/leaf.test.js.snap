@@ -1,0 +1,11 @@
+exports[`test Render Leaf Node 1`] = `
+<div>
+  id: 1
+  <input
+    checked={false}
+    type="checkbox" />
+  <p>
+    Fouti hi rovumjak wuwab ojki utemun ti voblom mefup ivkiz nadahuw ci.
+  </p>
+</div>
+`;

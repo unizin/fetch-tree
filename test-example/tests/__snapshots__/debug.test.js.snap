@@ -1,0 +1,93 @@
+exports[`test use group.debug to log what fetchTree is doing 1`] = `
+<pre>
+  {
+      \"id\": 1,
+      \"todo\": {
+          \"id\": 1,
+          \"done\": false,
+          \"note\": \"Fouti hi rovumjak wuwab ojki utemun ti voblom mefup ivkiz nadahuw ci.\"
+      }
+  }
+</pre>
+`;
+
+exports[`test use group.debug to log what fetchTree is doing 2`] = `
+"[groupCollapsed] DEBUG
+[groupCollapsed] group: FetchTree(JSONProps)
+node:  [object Object]
+[groupCollapsed] fromProps: FetchTree(JSONProps).id
+node:  [object Object]
+isReady true
+value 1
+[groupEnd] fromProps: FetchTree(JSONProps).id
+[groupCollapsed] depends: FetchTree(JSONProps).todo
+node:  [object Object]
+node.dependencies:  id
+[groupCollapsed] loader: FetchTree(JSONProps).todo
+node:  [object Object]
+...args:  1
+queue action todo-1
+isReady false
+value 
+[groupEnd] loader: FetchTree(JSONProps).todo
+isReady false
+value 
+[groupEnd] depends: FetchTree(JSONProps).todo
+isReady false
+value [object Object]
+[groupEnd] group: FetchTree(JSONProps)
+[groupEnd] DEBUG
+[groupCollapsed] action: todo-1
+...args:  1
+[groupEnd] action: todo-1
+[groupCollapsed] DEBUG
+[groupCollapsed] group: FetchTree(JSONProps)
+node:  [object Object]
+[groupCollapsed] fromProps: FetchTree(JSONProps).id
+node:  [object Object]
+isReady true
+value 1
+[groupEnd] fromProps: FetchTree(JSONProps).id
+[groupCollapsed] depends: FetchTree(JSONProps).todo
+node:  [object Object]
+node.dependencies:  id
+[groupCollapsed] loader: FetchTree(JSONProps).todo
+node:  [object Object]
+...args:  1
+queue action todo-1
+isReady false
+value 
+[groupEnd] loader: FetchTree(JSONProps).todo
+isReady false
+value 
+[groupEnd] depends: FetchTree(JSONProps).todo
+isReady false
+value [object Object]
+[groupEnd] group: FetchTree(JSONProps)
+[groupEnd] DEBUG
+[groupCollapsed] DEBUG
+[groupCollapsed] group: FetchTree(JSONProps)
+node:  [object Object]
+[groupCollapsed] fromProps: FetchTree(JSONProps).id
+node:  [object Object]
+isReady true
+value 1
+[groupEnd] fromProps: FetchTree(JSONProps).id
+[groupCollapsed] depends: FetchTree(JSONProps).todo
+node:  [object Object]
+node.dependencies:  id
+[groupCollapsed] loader: FetchTree(JSONProps).todo
+node:  [object Object]
+...args:  1
+queue action todo-1
+isReady true
+value [object Object]
+[groupEnd] loader: FetchTree(JSONProps).todo
+isReady true
+value [object Object]
+[groupEnd] depends: FetchTree(JSONProps).todo
+isReady true
+value [object Object]
+[groupEnd] group: FetchTree(JSONProps)
+[groupEnd] DEBUG"
+`;

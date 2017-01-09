@@ -1,0 +1,127 @@
+exports[`test Connected root composed of unconnected branches and leaves 1`] = `
+<div>
+  Branch props: {
+    "id": 1,
+    "branch": {
+      "id": 1,
+      "name": "nepik",
+      "leafAId": 83,
+      "leafBId": 31
+    },
+    "leafAProps": {
+      "id": 83,
+      "branchId": 1,
+      "data": {
+        "id": 83,
+        "done": true,
+        "note": "Akitunca materu ihu gi sew mile kacadifes vo pi nemukla vedpuunu bo huicif ubo cerafeip woswe bi upe."
+      }
+    },
+    "leafBProps": {
+      "id": 31,
+      "data": {
+        "id": 31,
+        "done": false,
+        "note": "Cupufsah foma haki nobdiv ze temaf la vapatukop gozgisi ham uzejagiso gotsejloj wepup zoselje."
+      }
+    }
+  }
+  <h1>
+    nepik
+  </h1>
+  <div>
+    LeafA props: {
+      "id": 83,
+      "branchId": 1,
+      "data": {
+        "id": 83,
+        "done": true,
+        "note": "Akitunca materu ihu gi sew mile kacadifes vo pi nemukla vedpuunu bo huicif ubo cerafeip woswe bi upe."
+      }
+    }
+  </div>
+  <div>
+    LeafB props: {
+      "id": 31,
+      "data": {
+        "id": 31,
+        "done": false,
+        "note": "Cupufsah foma haki nobdiv ze temaf la vapatukop gozgisi ham uzejagiso gotsejloj wepup zoselje."
+      }
+    }
+  </div>
+</div>
+`;
+
+exports[`test Connected root with an array of unconnected children 1`] = `
+<div>
+  <div>
+    id: 1
+    <input
+      checked={false}
+      type="checkbox" />
+    <p>
+      Fouti hi rovumjak wuwab ojki utemun ti voblom mefup ivkiz nadahuw ci.
+    </p>
+  </div>
+  <div>
+    id: 2
+    <input
+      checked={true}
+      type="checkbox" />
+    <p>
+      Bev rip asu rosob lo su za wirun kubvaw nadridzez cabfed temekuinu co.
+    </p>
+  </div>
+  <div>
+    id: 3
+    <input
+      checked={true}
+      type="checkbox" />
+    <p>
+      Liuna igana pucodmek emik hapo tuczuc vokme podikru vokuse horu mum tion catke pohabe wipewen zavse osawa.
+    </p>
+  </div>
+</div>
+`;
+
+exports[`test Disconnected root with mock/fixture props 1`] = `
+<div>
+  Branch props: {
+    \"branch\": {
+      \"name\": \"Branch Fixture\"
+    },
+    \"leafAProps\": {
+      \"data\": {
+        \"id\": 11,
+        \"note\": \"LeafA fixture\"
+      }
+    },
+    \"leafBProps\": {
+      \"data\": {
+        \"id\": 42,
+        \"note\": \"LeafA fixture\"
+      }
+    }
+  }
+  <h1>
+    Branch Fixture
+  </h1>
+  <div>
+    LeafA props: {
+      \"data\": {
+        \"id\": 11,
+        \"note\": \"LeafA fixture\"
+      }
+    }
+  </div>
+  <div>
+    LeafB props: {
+      \"data\": {
+        \"id\": 42,
+        \"note\": \"LeafA fixture\"
+      }
+    }
+  </div>
+</div>
+`;

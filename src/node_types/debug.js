@@ -1,14 +1,18 @@
 import { register } from '../processor'
+import normalize from './normalize'
 const TYPE = 'debug'
 
 
 /* eslint-disable no-console */
+/* istanbul ignore next */
 const groupCollapsed = (...args) => {
     if (console.groupCollapsed != null) {
         console.groupCollapsed(...args)
     }
 }
+/* istanbul ignore next */
 const groupEnd = (...args) => {
+    /* istanbul ignore if */
     if (console.groupEnd != null) {
         console.groupEnd(...args)
     }
@@ -24,7 +28,7 @@ export default register({
 
         return {
             TYPE,
-            child,
+            child: normalize(child),
         }
     },
     nodeProcessor(next, scope, node) {
