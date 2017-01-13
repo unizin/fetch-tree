@@ -1,7 +1,24 @@
 /* eslint-disable no-console */
 const visitors = {}
 
+let mockedNodes
+export const resetMocks = () => { mockedNodes = undefined }
+
+export function registerMock(node, mock) {
+    if (mockedNodes == null) {
+        mockedNodes = new WeakMap()
+    }
+    mockedNodes.set(node, mock)
+}
+
+
 function next(processingContext, node, ...args) {
+    if (process.env.NODE_ENV !== 'production') {
+        if (mockedNodes != null && mockedNodes.has(node)) {
+            node = mockedNodes.get(node)
+        }
+    }
+
     if (!visitors[node.TYPE]) {
         console.log(node)
         throw new Error(`Invalid type: ${String(node.TYPE)}`)
