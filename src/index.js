@@ -16,7 +16,8 @@ import mockNode from './node_types/mock-node'
 import component from './component'
 import reducer, { refreshCache } from './actions-reducer'
 
-import { register as registerNodeType, resetMocks } from './processor.js'
+import { register as registerNodeType } from './processor.js'
+import { resetMocks } from './mocks'
 
 export { group, loader, selector, depends, reducer, debug, virtual, entity, withContext }
 export { withDispatch, dispatch }

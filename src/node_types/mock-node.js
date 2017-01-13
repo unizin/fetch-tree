@@ -1,4 +1,5 @@
-import { register, registerMock } from '../processor.js'
+import { register } from '../processor'
+import { registerMock } from '../mocks'
 
 const TYPE = 'mocked-node'
 const mockedNode = register({

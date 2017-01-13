@@ -2,7 +2,7 @@ import React from 'react'
 import td from 'testdouble'
 
 import { renderSnapshot } from './test-utils.js'
-import fetchTree, { group, fromProps, virtual, child, mockNode, resetMocks } from 'fetch-tree'
+import fetchTree, { group, fromProps, virtual, child, mockNode, resetMocks, dispatch, registerNodeType } from 'fetch-tree'
 
 import Leaf from '../src/components/todo'
 import Loading from '../src/components/loading'
@@ -108,4 +108,70 @@ test(`mocking a mocked node replaces it`, async () => {
     expect(report.apiRequests).toEqual({})
     // Nothing needed to be fetched, so it was able to render immediately.
     expect(report.loadingScreens).toBe(0)
+})
+
+describe(`If you mock anything, you must mock:`, () => {
+    async function captureError(component) {
+        try {
+            await renderSnapshot(component)
+        } catch (e) {
+            return e
+        }
+        return undefined
+    }
+    const Dummy = () => (<div>Dummy</div>)
+    beforeEach(() => {
+        // unused mock
+        mockNode(todoResource, (id) => {
+            return { id, done: true, note: 'whatever' }
+        })
+    })
+
+    async function testError(resourceGroup, regex) {
+        const Component = fetchTree({
+            component: Dummy,
+            resourceGroup,
+        })
+
+        const error = await captureError(
+            <Component ids={[1]} />
+        )
+        expect(error).not.toBeUndefined()
+        expect(error.message).toMatch(regex)
+    }
+
+
+    test(`Any async node`, async () => {
+        const TYPE = 'never-ready'
+        const neverReady = registerNodeType({
+            TYPE,
+            factory() { return { TYPE } },
+            nodeProcessor() {
+                return {
+                    isReady: false,
+                }
+            },
+        })
+
+        await testError(group({
+            whatever: neverReady(),
+        }), /^MissingMock:/)
+    })
+
+    test(`dispatch nodes`, async () => {
+        const actionCreator = () => ({
+            type: 'something',
+        })
+        await testError(group({
+            doSomething: dispatch(actionCreator),
+        }), /^MissingMock: dispatch/)
+    })
+
+    test(`select nodes`, async () => {
+        function selectFoo(state) { return state.foo }
+
+        await testError(group({
+            foo: selectFoo,
+        }), /^MissingMock: dispatch/)
+    })
 })
