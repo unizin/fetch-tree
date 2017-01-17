@@ -6,7 +6,7 @@ const mockedNode = register({
     TYPE,
     factory(original, fn) {
         if (typeof fn !== 'function') {
-            throw new Error('You must x')
+            throw new Error('missing function')
         }
 
         return {

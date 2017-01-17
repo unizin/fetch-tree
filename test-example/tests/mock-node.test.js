@@ -85,7 +85,6 @@ test(`resetMocks())`, async () => {
     expect(report.apiRequests).toEqual({
         fetchTodo: 2,
     })
-    // Nothing needed to be fetched, so it was able to render immediately.
     expect(report.loadingScreens).toBe(1)
 })
 
