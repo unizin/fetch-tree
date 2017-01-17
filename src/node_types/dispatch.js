@@ -21,7 +21,13 @@ export default register({
         if (!dispatch) {
             throw new Error(`No dispatch found on scope`)
         }
-        const { actionCreator } = node
+        let { actionCreator } = node
+        if (process.env.NODE_ENV !== 'production' && scope.hasMocks()) {
+            if (!scope.hasMock(actionCreator)) {
+                throw scope.missingMock('dispatch')
+            }
+            actionCreator = scope.getMock(actionCreator)
+        }
 
         const value = (...args) => dispatch(actionCreator(...args))
 

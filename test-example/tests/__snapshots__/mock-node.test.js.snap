@@ -1,0 +1,69 @@
+exports[`test mockNode() will replace the way a node processes 1`] = `
+<ul>
+  <li>
+    <div>
+      id: 1
+      <input
+        checked={true}
+        type="checkbox" />
+      <p>
+        one
+      </p>
+    </div>
+  </li>
+  <li>
+    <div>
+      id: 2
+      <input
+        checked={true}
+        type="checkbox" />
+      <p>
+        two
+      </p>
+    </div>
+  </li>
+</ul>
+`;
+
+exports[`test mocking a mocked node replaces it 1`] = `
+<ul>
+  <li>
+    <div>
+      id: 1
+      <input
+        checked={true}
+        type="checkbox" />
+      <p>
+        second mock
+      </p>
+    </div>
+  </li>
+</ul>
+`;
+
+exports[`test resetMocks()) 1`] = `
+<ul>
+  <li>
+    <div>
+      id: 1
+      <input
+        checked={false}
+        type="checkbox" />
+      <p>
+        Fouti hi rovumjak wuwab ojki utemun ti voblom mefup ivkiz nadahuw ci.
+      </p>
+    </div>
+  </li>
+  <li>
+    <div>
+      id: 2
+      <input
+        checked={true}
+        type="checkbox" />
+      <p>
+        Bev rip asu rosob lo su za wirun kubvaw nadridzez cabfed temekuinu co.
+      </p>
+    </div>
+  </li>
+</ul>
+`;

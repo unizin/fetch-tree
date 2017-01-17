@@ -1,7 +1,12 @@
 /* eslint-disable no-console */
+import { hasMocks, getMock, hasMock } from './mocks'
 const visitors = {}
 
 function next(processingContext, node, ...args) {
+    if (process.env.NODE_ENV !== 'production' && hasMocks()) {
+        node = getMock(node)
+    }
+
     if (!visitors[node.TYPE]) {
         console.log(node)
         throw new Error(`Invalid type: ${String(node.TYPE)}`)
@@ -26,6 +31,13 @@ function next(processingContext, node, ...args) {
     } else {
         value = visitors[node.TYPE](next, processingContext, node, ...args)
     }
+
+    if (process.env.NODE_ENV !== 'production' && hasMocks()) {
+        if (!value.isReady) {
+            throw processingContext.missingMock('when mocking all nodes must be ready')
+        }
+    }
+
     return value
 }
 
@@ -42,6 +54,13 @@ export default function processor(node, state) {
             actionQueue.push({ id, action, args, debug: this.debug })
         },
         path: ['root'],
+        // Expose these for 3rd party nodes
+        hasMocks,
+        hasMock,
+        getMock,
+        missingMock(message = '') {
+            return new Error(`MissingMock: ${message}\nLocation: ${this.path.join('.')}`)
+        },
     }
 
     const value = next(processingContext, node)

@@ -11,16 +11,19 @@ import withProps from './node_types/with-props'
 import withDispatch from './node_types/with-dispatch'
 import dispatch from './node_types/dispatch'
 import fromProps from './node_types/from-props'
+import mockNode from './node_types/mock-node'
 
 import component from './component'
 import reducer, { refreshCache } from './actions-reducer'
 
 import { register as registerNodeType } from './processor.js'
+import { resetMocks } from './mocks'
 
 export { group, loader, selector, depends, reducer, debug, virtual, entity, withContext }
 export { withDispatch, dispatch }
 export { child, withProps, fromProps }
 export { refreshCache }
+export { mockNode, resetMocks }
 
 export { registerNodeType }
 export default component

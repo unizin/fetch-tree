@@ -15,6 +15,16 @@ export default register({
         }
     },
     nodeProcessor(next, scope, node, ...args) {
+        if (process.env.NODE_ENV !== 'production' && scope.hasMocks()) {
+            if (!scope.hasMock(node.select)) {
+                throw scope.missingMock('dispatch')
+            }
+            const mock = scope.getMock(node.select)
+            return {
+                isReady: true,
+                value: mock(...args),
+            }
+        }
         return {
             isReady: true,
             value: node.select(scope.state, ...args),
