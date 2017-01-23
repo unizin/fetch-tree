@@ -28,4 +28,18 @@ export default register({
             value,
         }
     },
+    findPropTypes(next, propShape, node) {
+        const path = node.path.split('.')
+        const propName = path.shift()
+
+        propShape[propName] = propShape[propName] || {}
+        if (path.length > 0) {
+            path.reduce((current, path) => {
+                current[path] = current[path] || {}
+                return current[path]
+            }, propShape[propName])
+        }
+
+        return propShape
+    },
 })

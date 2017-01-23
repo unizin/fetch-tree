@@ -71,6 +71,9 @@ const group = register({
 
         return results
     },
+    findPropTypes(next, propShape, node) {
+        return reduce(node.children, next, propShape)
+    },
 })
 
 group.debug = function debugGroup(children) {

@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { registerPropTypeProcessor } from './component/generatePropTypes'
 import { hasMocks, getMock, hasMock } from './mocks'
 const visitors = {}
 
@@ -71,7 +72,7 @@ export default function processor(node, state) {
     }
 }
 
-export const register = ({ TYPE, factory, nodeProcessor }) => {
+export const register = ({ TYPE, factory, nodeProcessor, findPropTypes }) => {
     if (!TYPE) { throw new Error('missing TYPE') }
     if (typeof TYPE !== 'string') { throw new Error('Invalid TYPE (it must be a string)') }
     if (!factory) { throw new Error('missing factory') }
@@ -80,6 +81,8 @@ export const register = ({ TYPE, factory, nodeProcessor }) => {
         throw new Error(`visitor ${TYPE} is already registered`)
     }
     visitors[TYPE] = nodeProcessor
+
+    registerPropTypeProcessor(TYPE, findPropTypes)
 
     // It's useful to attach the nodeProcessor and type for testing purposes.
     factory.nodeProcessor = nodeProcessor

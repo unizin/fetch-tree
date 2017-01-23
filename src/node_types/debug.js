@@ -44,4 +44,7 @@ export default register({
             groupEnd('DEBUG')
         }
     },
+    findPropTypes(next, propShape, node) {
+        return next(propShape, node.child)
+    },
 })

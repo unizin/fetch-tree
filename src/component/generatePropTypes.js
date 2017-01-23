@@ -1,34 +1,26 @@
 import React from 'react'
-import { map, reduce } from '../utils'
+import { map } from '../utils'
+
+const visitors = {}
+const defaultProcessor = (next, propPaths) => propPaths
+
+export function registerPropTypeProcessor(TYPE, findPropTypes = defaultProcessor) {
+    visitors[TYPE] = findPropTypes
+}
+
+function processNode(propPaths, node) {
+    const fn = visitors[node.TYPE]
+
+    const tmp = fn(processNode, propPaths, node)
+    if (typeof tmp !== 'object') {
+        throw new Error(`${node.TYPE}.findPropTypes() failed to return an object`)
+    }
+
+    return tmp
+}
 
 export default function generatePropTypes(resourceGroup) {
-    let group = resourceGroup
-    if (group.TYPE === 'debug') {
-        group = group.child
-    }
-
-    const mergePropShape = (propPaths, node) => {
-        if (node.TYPE === 'virtual' || node.TYPE === 'debug') {
-            return mergePropShape(propPaths, node.child)
-        }
-
-        if (node.TYPE === 'fromProps') {
-            const path = node.path.split('.')
-            const propName = path.shift()
-
-            propPaths[propName] = propPaths[propName] || {}
-            if (path.length > 0) {
-                path.reduce((current, path) => {
-                    current[path] = current[path] || {}
-                    return current[path]
-                }, propPaths[propName])
-            }
-        }
-
-        return propPaths
-    }
-    // This produces a tree of objects representing all known props.
-    const propPaths = reduce(group.children, mergePropShape, {})
+    const propPaths = processNode({}, resourceGroup)
 
     return map(propPaths, function makeProptype(tmp) {
         if (Object.keys(tmp).length === 0) {
