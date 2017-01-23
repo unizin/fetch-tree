@@ -1,11 +1,10 @@
-
 import { register } from '../processor'
 
 const TYPE = 'fromProps'
 
 export default register({
     TYPE,
-    factory(path) {
+    factory(path, defaultValue) {
         if (typeof path !== 'string') {
             throw new Error('path must be a string')
         }
@@ -13,31 +12,39 @@ export default register({
         return {
             TYPE,
             path,
+            defaultValue,
         }
     },
     nodeProcessor(next, scope, node) {
         const path = node.path.split('.')
 
-        const value = path.reduce(
+        let value = path.reduce(
             (value, next) => (value != null ? value[next] : null),
             scope.props
         )
+        if (value == null && node.defaultValue != null) {
+            value = node.defaultValue
+        }
 
         return {
             isReady: true,
             value,
         }
     },
-    findPropTypes(next, propShape, node) {
+    findPropTypes(next, propShape, node, flags) {
         const path = node.path.split('.')
         const propName = path.shift()
 
-        propShape[propName] = propShape[propName] || {}
+        let leaf = propShape[propName] = propShape[propName] || {}
         if (path.length > 0) {
             path.reduce((current, path) => {
-                current[path] = current[path] || {}
+                leaf = current[path] = current[path] || {}
                 return current[path]
             }, propShape[propName])
+        }
+
+        if (node.defaultValue) {
+            leaf[flags.notRequired] = true
         }
 
         return propShape

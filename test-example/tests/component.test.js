@@ -13,8 +13,11 @@ const Component = fetchTree({
     resourceGroup: group({
         number: fromProps('number'),
         id: fromProps('id'),
+        propWithDefault: fromProps('optional', 'default'),
+
         nestedProp: fromProps('missingData.some.nested.data'),
         otherData: fromProps('missingData.other'),
+        nestedWithDefault: fromProps('nested.withDefault', 'default'),
 
         foo: fromProps('data.foo'),
 

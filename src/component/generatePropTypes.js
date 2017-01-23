@@ -3,6 +3,9 @@ import { map } from '../utils'
 
 const visitors = {}
 const defaultProcessor = (next, propPaths) => propPaths
+const flags = {
+    notRequired: Symbol('notRequired'),
+}
 
 export function registerPropTypeProcessor(TYPE, findPropTypes = defaultProcessor) {
     visitors[TYPE] = findPropTypes
@@ -11,7 +14,7 @@ export function registerPropTypeProcessor(TYPE, findPropTypes = defaultProcessor
 function processNode(propPaths, node) {
     const fn = visitors[node.TYPE]
 
-    const tmp = fn(processNode, propPaths, node)
+    const tmp = fn(processNode, propPaths, node, flags)
     if (typeof tmp !== 'object') {
         throw new Error(`${node.TYPE}.findPropTypes() failed to return an object`)
     }
@@ -22,13 +25,31 @@ function processNode(propPaths, node) {
 export default function generatePropTypes(resourceGroup) {
     const propPaths = processNode({}, resourceGroup)
 
-    return map(propPaths, function makeProptype(tmp) {
+    let shapeIsRequired = false
+
+    const path = []
+    return map(propPaths, function makeProptype(tmp, name) {
+        path.push(name)
         if (Object.keys(tmp).length === 0) {
-            return React.PropTypes.any.isRequired
+            path.pop()
+            const type = React.PropTypes.any
+
+            if (tmp[flags.notRequired]) {
+                return type
+            }
+            shapeIsRequired = true
+            return type.isRequired
         }
 
-        return React.PropTypes.shape(
+        shapeIsRequired = false
+        const shape = React.PropTypes.shape(
             map(tmp, makeProptype)
-        ).isRequired
+        )
+
+        path.pop()
+        if (shapeIsRequired) {
+            return shape.isRequired
+        }
+        return shape
     })
 }

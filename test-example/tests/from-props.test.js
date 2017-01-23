@@ -19,6 +19,7 @@ const ConnectedDummy = fetchTree({
         // Paths can pass through objects that don't exist without errors
         baz: fromProps('params.foo.bar.baz'),
         fakeProp: fromProps('fakeProp'),
+        withDefault: fromProps('withDefault', 'default'),
     }),
 })
 
@@ -37,6 +38,7 @@ test(`use group.debug to log what fetchTree is doing`, async () => {
         id: 1,
         baz: null,
         fakeProp: undefined,
+        withDefault: 'default',
     })
     expect(report.apiRequests).toEqual({})
     expect(report.loadingScreens).toBe(0)
