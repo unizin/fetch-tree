@@ -22,4 +22,7 @@ export default register({
             excludeProp: true,
         }
     },
+    findPropTypes(next, propShape, node) {
+        return next(propShape, node.child)
+    },
 })

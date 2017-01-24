@@ -5,7 +5,8 @@ exports[`test use group.debug to log what fetchTree is doing 1`] = `
           \"id\": 1
       },
       \"id\": 1,
-      \"baz\": null
+      \"baz\": null,
+      \"withDefault\": \"default\"
   }
 </pre>
 `;
